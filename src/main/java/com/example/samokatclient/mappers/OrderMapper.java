@@ -1,8 +1,6 @@
 package com.example.samokatclient.mappers;
 
-import com.example.samokatclient.DTO.details.AddressDto;
-import com.example.samokatclient.DTO.details.OrderDto;
-import com.example.samokatclient.DTO.details.PaymentDto;
+import com.example.samokatclient.DTO.order.OrderDto;
 import com.example.samokatclient.entities.user.Address;
 import com.example.samokatclient.entities.user.Order;
 import com.example.samokatclient.entities.user.Payment;
@@ -20,20 +18,22 @@ public class OrderMapper {
     private final AddressRepository addressRepository;
     private final PaymentRepository paymentRepository;
     private final CartMapper cartMapper;
+    private final AddressMapper addressMapper;
+    private final PaymentMapper paymentMapper;
 
     public OrderDto toDto(Order order){
         OrderDto orderDto = new OrderDto();
-        orderDto.cart = cartMapper.listOrderCartItemToDto(order.getCartItemList());
+        orderDto.cart = cartMapper.listOrderCartItemToDto(order.getOrderCartItemList());
         Optional<Address> optionalAddress = addressRepository.findById(order.getAddress_id());
         if (optionalAddress.isPresent()){
-            orderDto.address = AddressMapper.toDto(optionalAddress.get());
+            orderDto.address = addressMapper.toDto(optionalAddress.get());
         }
         else{
             throw new AddressNotFoundException();
         }
         Optional<Payment> optionalPayment = paymentRepository.findById(order.getPayment_id());
         if (optionalPayment.isPresent()){
-            orderDto.payment = PaymentMapper.toDto(optionalPayment.get());
+            orderDto.payment = paymentMapper.toDto(optionalPayment.get());
         }
         else{
             throw new AddressNotFoundException();

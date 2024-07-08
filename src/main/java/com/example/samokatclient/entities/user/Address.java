@@ -17,5 +17,5 @@ public class Address {
     private String entrance;
     private Integer plate;
     @Indexed
-    private String user_id;
+    private String userId;
 }

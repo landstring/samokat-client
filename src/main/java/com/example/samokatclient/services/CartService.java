@@ -38,6 +38,7 @@ public class CartService {
             throw new CartNotFoundException();
         }
         cart.addToCart(productId);
+        redisTemplate.opsForHash().put(HASH_KEY, token, cart);
     }
 
     public void deleteFromCart(String token, Long productId){
@@ -46,13 +47,17 @@ public class CartService {
             throw new CartNotFoundException();
         }
         cart.deleteFromCart(productId);
+        redisTemplate.opsForHash().put(HASH_KEY, token, cart);
     }
 
-    public void deleteCart(String token){
+    public String deleteCart(String token){
         Cart cart = (Cart) redisTemplate.opsForHash().get(HASH_KEY, token);
         if (cart == null){
             throw new CartNotFoundException();
         }
         redisTemplate.opsForHash().delete(HASH_KEY, token);
+        return createCart();
     }
 }
+
+// TODO: 08.07.2024 Реализовать проверку на существование продукта в базе при добавлении 

@@ -15,5 +15,5 @@ public class Payment {
     private String expiration_date;
     private Integer cvc;
     @Indexed
-    private String user_id;
+    private String userId;
 }

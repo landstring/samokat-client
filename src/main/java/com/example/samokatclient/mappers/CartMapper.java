@@ -2,7 +2,7 @@ package com.example.samokatclient.mappers;
 
 import com.example.samokatclient.DTO.cart.CartDto;
 import com.example.samokatclient.DTO.cart.CartItem;
-import com.example.samokatclient.DTO.details.OrderCartItem;
+import com.example.samokatclient.DTO.cart.OrderCartItem;
 import com.example.samokatclient.redis.Cart;
 import com.example.samokatclient.services.ProductService;
 import lombok.AllArgsConstructor;
@@ -27,7 +27,7 @@ public class CartMapper {
                     productService.getProductById(entry.getKey()),
                     entry.getValue()
             );
-            totalCost += productService.getProductById(entry.getKey()).getPrice() * entry.getValue();
+            totalCost += productService.getProductById(entry.getKey()).price * entry.getValue();
             cartItemList.add(cartItem);
         }
         return new CartDto(cartItemList, totalCost);
@@ -41,9 +41,17 @@ public class CartMapper {
                     productService.getProductById(orderCartItem.product_id),
                     orderCartItem.count
             );
-            totalCost += productService.getProductById(orderCartItem.product_id).getPrice() * orderCartItem.count;
+            totalCost += productService.getProductById(orderCartItem.product_id).price * orderCartItem.count;
             cartItemList.add(cartItem);
         }
         return new CartDto(cartItemList, totalCost);
+    }
+
+    public List<OrderCartItem> toListOrderCartItem(CartDto cartDto){
+        List<OrderCartItem> orderCartItemList = new ArrayList<>();
+        for (CartItem cartItem : cartDto.cartItemList){
+            orderCartItemList.add(new OrderCartItem(cartItem.product.id, cartItem.count));
+        }
+        return orderCartItemList;
     }
 }

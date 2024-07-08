@@ -2,25 +2,25 @@ package com.example.samokatclient.DTO.product;
 
 import com.example.samokatclient.entities.product.Category;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Data
+import java.util.ArrayList;
+import java.util.List;
+
+@NoArgsConstructor
 public class CategoryDto {
-    Long id;
-    String name;
-    Boolean isMostChild;
-    byte[] categoryImage;
-    CategoryDto parent;
+    public Long id;
+    public String name;
+    public String categoryImage_url;
+    public List<CategoryDto> children;
 
     public CategoryDto(Category category){
         id = category.getId();
         name = category.getName();
-        isMostChild = category.getHasChildren();
-        categoryImage = category.getImage().clone();
-        if (category.getParent() == null){
-            parent = null;
-        }
-        else{
-            parent = new CategoryDto(category.getParent());
+        categoryImage_url = category.getImage_url();
+        children = new ArrayList<>();
+        for (Category child : category.getChildren()){
+            children.add(new CategoryDto(child));
         }
     }
 }

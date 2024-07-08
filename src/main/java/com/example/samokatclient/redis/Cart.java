@@ -2,14 +2,17 @@ package com.example.samokatclient.redis;
 
 import com.example.samokatclient.exceptions.cart.ProductNotFoundInCartException;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
+import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
 import java.util.TreeMap;
 
 @RedisHash("Cart")
 @Getter
+@Setter
 public class Cart implements Serializable {
     @Id
     private String id;

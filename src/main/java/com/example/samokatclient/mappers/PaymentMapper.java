@@ -1,10 +1,12 @@
 package com.example.samokatclient.mappers;
 
-import com.example.samokatclient.DTO.details.PaymentDto;
+import com.example.samokatclient.DTO.order.PaymentDto;
 import com.example.samokatclient.entities.user.Payment;
+import org.springframework.stereotype.Component;
 
+@Component
 public class PaymentMapper {
-    public static Payment fromDto(PaymentDto paymentDto){
+    public Payment fromDto(PaymentDto paymentDto){
         Payment payment = new Payment();
         payment.setCard_number(paymentDto.card_number);
         payment.setExpiration_date(paymentDto.expiration_date);
@@ -12,7 +14,7 @@ public class PaymentMapper {
         return payment;
     }
 
-    public static PaymentDto toDto(Payment payment){
+    public PaymentDto toDto(Payment payment){
         return new PaymentDto(payment);
     }
 }

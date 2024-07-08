@@ -1,47 +1,95 @@
 package com.example.samokatclient.controllers;
 
-import com.example.samokatclient.DTO.product.CategoryDto;
-import com.example.samokatclient.DTO.product.ProductDto;
 import com.example.samokatclient.services.ProductService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
+@Tag(name = "Методы для получения информации о продуктах")
+@CrossOrigin
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api")
 public class ProductController {
     private final ProductService productService;
 
+    @Operation(
+            summary = "Вывести все категории",
+            description = "Категории выводятся иерархической структурой"
+    )
     @GetMapping("/categories")
-    private List<CategoryDto> getCategories() {
-        return productService.getAllMainCategories();
+    private ResponseEntity<?>getCategories() {
+        return new ResponseEntity<>(productService.getAllCategories(), HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Вывести продукты категории",
+            description =
+                    "Выводит все продукты для данной категории. Если у категории есть дочерние," +
+                    " возьмёт продукты из каждой, объединив их в список"
+    )
     @GetMapping ("/categories/{category_id}")
-    private List<ProductDto> getCategories(@PathVariable("category_id") Long category_id,
-                                           @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
-                                           @RequestParam(value = "pageSize", defaultValue = "10") int pageSize){
-        return productService.getAllProductsFromCategory(category_id, pageNumber, pageSize);
+    private ResponseEntity<?> getCategories(
+            @Parameter(description = "ID категории")
+            @PathVariable("category_id") Long category_id,
+
+            @Parameter(description = "Номер страницы")
+            @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
+
+            @Parameter(description = "Размер страницы")
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
+        return new ResponseEntity<>(
+                productService.getAllProductsFromCategory(category_id, pageNumber, pageSize),
+                HttpStatus.OK
+        );
     }
 
+    @Operation(
+            summary = "Вывести продукты",
+            description =
+                    "Выводит все продукты, которые представлены в каталоге"
+    )
     @GetMapping ("/products")
-    private List<ProductDto> getProducts(@RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
-                                         @RequestParam(value = "pageSize", defaultValue = "10") int pageSize){
-        return productService.getAllProductsPage(pageNumber, pageSize);
+    private ResponseEntity<?> getProducts(
+            @Parameter(description = "Номер страницы")
+            @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
+
+            @Parameter(description = "Размер страницы")
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
+        return new ResponseEntity<>(productService.getAllProductsPage(pageNumber, pageSize), HttpStatus. OK);
     }
 
+    @Operation(
+            summary = "Вывести продукт",
+            description = "Выводит информацию о конкретном продукте"
+    )
     @GetMapping ("/products/{product_id}")
-    private ProductDto getProduct(@PathVariable("product_id") Long product_id) {
+    private ResponseEntity<?> getProduct(
+            @Parameter(description = "ID продукта")
+            @PathVariable("product_id") Long product_id) {
 
-        return productService.getProductById(product_id);
+        return new ResponseEntity<>(productService.getProductById(product_id), HttpStatus.OK);
     }
+
+    @Operation(
+            summary = "Поиск продукта",
+            description = "Ищет продукты по ключевым словам запроса"
+    )
     @GetMapping ("/products/find")
-    private List<ProductDto> getProducts(@RequestParam("search") String search,
-                                         @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
-                                         @RequestParam(value = "pageSize", defaultValue = "10") int pageSize){
-        return productService.searchProductsByKeywords(search, pageNumber, pageSize);
+    private ResponseEntity<?> getProducts(
+            @Parameter(description = "Поисковой запрос")
+            @RequestParam("search") String search,
+
+            @Parameter(description = "Номер страницы")
+            @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
+
+            @Parameter(description = "Размер страницы")
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize){
+        return new ResponseEntity<>(productService.searchProductsByKeywords(search, pageNumber, pageSize), HttpStatus.OK);
     }
 
 

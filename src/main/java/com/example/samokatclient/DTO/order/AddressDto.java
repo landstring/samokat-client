@@ -1,9 +1,12 @@
-package com.example.samokatclient.DTO.details;
+package com.example.samokatclient.DTO.order;
 
 import com.example.samokatclient.entities.user.Address;
-import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor
 public class AddressDto {
+    public String id;
     public String city;
     public String home;
     public String apartment;
@@ -11,6 +14,7 @@ public class AddressDto {
     public Integer plate;
 
     public AddressDto(Address address){
+        this.id = address.getId();
         this.city = address.getCity();
         this.home = address.getHome();
         this.apartment = address.getApartment();

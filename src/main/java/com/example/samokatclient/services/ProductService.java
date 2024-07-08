@@ -28,18 +28,6 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
     private final EntityManager entityManager;
 
-    public Category getCategoryById(Long id){
-        Optional<Category> optionalCategory = categoryRepository.findById(id);
-        Category category = null;
-        if (optionalCategory.isPresent()){
-            category = optionalCategory.get();
-        }
-        else{
-            throw new CategoryNotFoundException();
-        }
-        return category;
-    }
-
     public ProductDto getProductById(Long id){
         Optional<Product> optionalProduct = productRepository.findById(id);
         Product product;
@@ -53,7 +41,7 @@ public class ProductService {
     }
 
     public List<ProductDto> getAllProductsPage(int pageNumber, int pageSize){
-        PageRequest pageable = PageRequest.of(pageNumber, pageSize);
+        PageRequest pageable = PageRequest.of(pageNumber - 1, pageSize);
         return productRepository
                 .findAll(pageable)
                 .stream()
@@ -61,7 +49,7 @@ public class ProductService {
                 .toList();
     }
 
-    public List<CategoryDto> getAllMainCategories(){
+    public List<CategoryDto> getAllCategories(){
         return categoryRepository
                 .findAllByParentIsNull()
                 .stream()
@@ -94,23 +82,16 @@ public class ProductService {
     }
 
     public List<ProductDto> getAllProductsFromCategory(Long category_id, int pageNumber, int pageSize){
-        List<Product> products = new ArrayList<>();
-        Category category = getCategoryById(category_id);
-        if (category.getHasChildren()){
-            List<Category> children = categoryRepository.findCategoriesByParent_Id(category_id);
-            for (Category child : children){
-                products.addAll(productRepository.findProductsByCategory_Id(child.getId()));
-            }
-
+        Optional<Category> optionalCategory = categoryRepository.findById(category_id);
+        if (optionalCategory.isPresent()){
+            PageRequest pageable = PageRequest.of(pageNumber - 1, pageSize);
+            return productRepository
+                    .findProductsByCategory_Id(category_id, pageable)
+                    .map(ProductDto::new)
+                    .toList();
         }
-        else {
-            products = productRepository.findProductsByCategory_Id(category_id);
+        else{
+            throw new CategoryNotFoundException();
         }
-
-        return products
-                .stream()
-                .map(ProductDto::new)
-                .toList()
-                .subList((pageNumber - 1) * pageSize, Integer.min((pageNumber - 1) * pageSize + pageSize, products.size()));
     }
 }

@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Data
 @AllArgsConstructor
@@ -19,12 +22,12 @@ public class Category {
     private String name;
 
     @Column(nullable = false)
-    private Boolean hasChildren;
-
-    @Column(name = "image", columnDefinition = "OID")
-    private byte[] image;
+    private String image_url;
 
     @ManyToOne
     @JoinColumn(name = "parent_id")
     private Category parent;
+
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Category> children = new ArrayList<>();
 }

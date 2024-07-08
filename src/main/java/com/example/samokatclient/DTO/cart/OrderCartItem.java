@@ -1,5 +1,8 @@
-package com.example.samokatclient.DTO.details;
+package com.example.samokatclient.DTO.cart;
 
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
 public class OrderCartItem {
     public Long product_id;
     public Integer count;
