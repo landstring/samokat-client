@@ -36,6 +36,9 @@ public class CurrentOrderService {
                 LocalDateTime.now(),
                 "CREATED"
         );
+        CurrentOrderDto currentOrderDto = new CurrentOrderDto();
+        currentOrderDto.id = orderToken;
+
         kafkaTemplate.send("newOrder",  newOrderDto);
     }
 

@@ -2,7 +2,6 @@ package com.example.samokatclient.services;
 
 import com.example.samokatclient.DTO.cart.CartDto;
 import com.example.samokatclient.DTO.order.AddressDto;
-import com.example.samokatclient.DTO.order.CurrentOrderDto;
 import com.example.samokatclient.DTO.order.OrderDto;
 import com.example.samokatclient.DTO.order.PaymentDto;
 import com.example.samokatclient.DTO.session.UserDto;
@@ -13,6 +12,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -191,6 +191,27 @@ public class SessionService {
         else{
             session.setCartToken(cartService.deleteCart(session.getCartToken()));
             redisTemplate.opsForHash().put(HASH_KEY, sessionToken, session);
+        }
+    }
+
+    public void addCurrentOrder(String sessionToken, String orderId){
+        Session session = (Session) redisTemplate.opsForHash().get(HASH_KEY, sessionToken);
+        if (session == null){
+            throw new InvalidTokenException();
+        }
+        else{
+            session.getCurrentOrdersId().add(orderId);
+        }
+    }
+
+    public void deleteCurrentOrder(String sessionToken, String orderId){
+        Session session = (Session) redisTemplate.opsForHash().get(HASH_KEY, sessionToken);
+        if (session == null){
+            throw new InvalidTokenException();
+        }
+        else{
+            List<String> orders = session.getCurrentOrdersId();
+            orders.remove(orderId);
         }
     }
 }

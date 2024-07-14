@@ -18,6 +18,7 @@ public class CurrentOrder implements Serializable {
     @Id
     private String id;
     private List<OrderCartItem> orderCartItemList;
+    private Long totalCost;
     private String address_id;
     private String payment_id;
     private LocalDateTime orderDateTime;
