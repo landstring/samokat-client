@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/current-order")
+@RequestMapping("/api/current-orders")
 public class CurrentOrderController {
     private final CurrentOrderService currentOrderService;
 
@@ -27,8 +27,6 @@ public class CurrentOrderController {
     public ResponseEntity<?> createOrder(
             @Parameter(hidden = true)
             @RequestHeader("Authorization") String token){
-        currentOrderService.createOrder(token);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(currentOrderService.createOrder(token), HttpStatus.OK);
     }
-    
 }

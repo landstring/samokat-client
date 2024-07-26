@@ -5,27 +5,34 @@ import com.example.samokatclient.DTO.order.OrderDto;
 import com.example.samokatclient.DTO.order.PaymentDto;
 import com.example.samokatclient.DTO.session.UserDto;
 import com.example.samokatclient.entities.user.Address;
+import com.example.samokatclient.entities.user.Order;
 import com.example.samokatclient.entities.user.Payment;
 import com.example.samokatclient.entities.user.SamokatUser;
 import com.example.samokatclient.exceptions.order.AddressNotFoundException;
+import com.example.samokatclient.exceptions.order.OrderNotFoundException;
 import com.example.samokatclient.exceptions.order.PaymentNotFoundException;
 import com.example.samokatclient.exceptions.user.UserNotFoundException;
 import com.example.samokatclient.mappers.AddressMapper;
 import com.example.samokatclient.mappers.OrderMapper;
 import com.example.samokatclient.mappers.PaymentMapper;
+import com.example.samokatclient.redis.CurrentOrder;
 import com.example.samokatclient.repositories.user.AddressRepository;
 import com.example.samokatclient.repositories.user.OrderRepository;
 import com.example.samokatclient.repositories.user.PaymentRepository;
 import com.example.samokatclient.repositories.user.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
 @AllArgsConstructor
 public class UserService {
+    private final static String HASH_KEY = "CurrentOrderClient";
+    private final RedisTemplate redisTemplate;
     private final OrderRepository orderRepository;
     private final AddressRepository addressRepository;
     private final PaymentRepository paymentRepository;
@@ -65,7 +72,38 @@ public class UserService {
     }
 
     public List<OrderDto> getUserOrders(String user_id){
-        return orderRepository.findByUserId(user_id).stream().map(orderMapper::toDto).toList();
+        return orderRepository
+                .findByUserId(user_id)
+                .stream()
+                .map(orderMapper::toDto)
+                .peek(orderDto -> {
+                    String status = getCurrentOrderStatus(orderDto.id);
+                    if (status != null){
+                        orderDto.status = status;
+                    }
+                })
+                .toList();
+    }
+
+    public OrderDto getOrderById(String order_id, String user_id){
+        Optional<Order> optionalOrder = orderRepository.findById(order_id);
+        if (optionalOrder.isPresent()){
+            Order order = optionalOrder.get();
+            if (Objects.equals(order.getUserId(), user_id)){
+                OrderDto orderDto = orderMapper.toDto(order);
+                String status = getCurrentOrderStatus(order_id);
+                if (status != null){
+                    orderDto.status = status;
+                }
+                return orderDto;
+            }
+            else{
+                throw new OrderNotFoundException();
+            }
+        }
+        else{
+            throw new OrderNotFoundException();
+        }
     }
 
     public List<AddressDto> getUserAddresses(String user_id){
@@ -106,5 +144,15 @@ public class UserService {
         Payment payment = paymentMapper.fromDto(paymentDto);
         payment.setUserId(user_id);
         paymentRepository.save(payment);
+    }
+
+    private String getCurrentOrderStatus(String order_id){
+        CurrentOrder currentOrder = (CurrentOrder) redisTemplate.opsForHash().get(HASH_KEY, order_id);
+        if (currentOrder == null){
+            return null;
+        }
+        else{
+            return currentOrder.getStatus();
+        }
     }
 }

@@ -23,22 +23,25 @@ public class OrderMapper {
 
     public OrderDto toDto(Order order){
         OrderDto orderDto = new OrderDto();
-        orderDto.cart = cartMapper.listOrderCartItemToDto(order.getOrderCartItemList());
+        orderDto.id = order.getId();
+        orderDto.cartDto = cartMapper.listOrderCartItemToDto(order.getOrderCartItemList());
+        orderDto.totalPrice = order.getTotalPrice();
         Optional<Address> optionalAddress = addressRepository.findById(order.getAddress_id());
         if (optionalAddress.isPresent()){
-            orderDto.address = addressMapper.toDto(optionalAddress.get());
+            orderDto.addressDto = addressMapper.toDto(optionalAddress.get());
         }
         else{
             throw new AddressNotFoundException();
         }
         Optional<Payment> optionalPayment = paymentRepository.findById(order.getPayment_id());
         if (optionalPayment.isPresent()){
-            orderDto.payment = paymentMapper.toDto(optionalPayment.get());
+            orderDto.paymentDto = paymentMapper.toDto(optionalPayment.get());
         }
         else{
             throw new AddressNotFoundException();
         }
         orderDto.orderDateTime = order.getOrderDateTime();
+        orderDto.status = order.getStatus();
         return orderDto;
     }
 }

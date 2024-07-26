@@ -4,6 +4,7 @@ import com.example.samokatclient.exceptions.cart.CartNotFoundException;
 import com.example.samokatclient.exceptions.cart.ProductNotFoundInCartException;
 import com.example.samokatclient.exceptions.order.AddressNotFoundException;
 import com.example.samokatclient.exceptions.order.CurrentOrderNotFoundException;
+import com.example.samokatclient.exceptions.order.OrderNotFoundException;
 import com.example.samokatclient.exceptions.order.PaymentNotFoundException;
 import com.example.samokatclient.exceptions.product.CategoryNotFoundException;
 import com.example.samokatclient.exceptions.product.ProductNotFoundException;
@@ -34,6 +35,11 @@ public class GlobalControllerAdvice {
     @ExceptionHandler(PaymentNotFoundException.class)
     public ResponseEntity<?> handlePaymentNotFoundException(PaymentNotFoundException ex){
         return new ResponseEntity<>("Способ оплаты не найден", HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(OrderNotFoundException.class)
+    public ResponseEntity<?> handleOrderNotFoundException(OrderNotFoundException ex){
+        return new ResponseEntity<>("Заказ не найден", HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(CategoryNotFoundException.class)

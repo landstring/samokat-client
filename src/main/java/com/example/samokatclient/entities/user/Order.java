@@ -23,4 +23,5 @@ public class Order {
     private String payment_id;
 
     private LocalDateTime orderDateTime;
+    private String status;
 }

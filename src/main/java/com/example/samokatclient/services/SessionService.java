@@ -6,14 +6,18 @@ import com.example.samokatclient.DTO.order.OrderDto;
 import com.example.samokatclient.DTO.order.PaymentDto;
 import com.example.samokatclient.DTO.session.UserDto;
 import com.example.samokatclient.exceptions.session.*;
+import com.example.samokatclient.mappers.OrderMapper;
 import com.example.samokatclient.mappers.UserMapper;
+import com.example.samokatclient.redis.CurrentOrder;
 import com.example.samokatclient.redis.Session;
 import lombok.AllArgsConstructor;
+import org.hibernate.query.Order;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -33,108 +37,78 @@ public class SessionService {
     }
 
     public UserDto getSessionUser(String sessionToken){
-        Session session = (Session) redisTemplate.opsForHash().get(HASH_KEY, sessionToken);
-        if (session == null){
-            throw new InvalidTokenException();
+        Session session = getSession(sessionToken);
+        if (session.getUser_id() != null){
+            return userMapper.toDto(userService.getUserById(session.getUser_id()));
         }
         else{
-            if (session.getUser_id() != null){
-                return userMapper.toDto(userService.getUserById(session.getUser_id()));
-            }
-            else{
-                throw new UserIsNotAuthorizedException();
-            }
+            throw new UserIsNotAuthorizedException();
         }
     }
 
     public void authorizeUser(String sessionToken, UserDto userDto){
-        Session session = (Session) redisTemplate.opsForHash().get(HASH_KEY, sessionToken);
-        if (session == null){
-            throw new InvalidTokenException();
+        Session session = getSession(sessionToken);
+        if (session.getUser_id() == null){
+            userService.authorizeUser(userDto);
+            session.setUser_id(userDto.phone_number);
+            redisTemplate.opsForHash().put(HASH_KEY, sessionToken, session);
         }
         else{
-            if (session.getUser_id() == null){
-                userService.authorizeUser(userDto);
-                session.setUser_id(userDto.phone_number);
-                redisTemplate.opsForHash().put(HASH_KEY, sessionToken, session);
-            }
-            else{
-                throw new UserIsAlreadyAuthorized();
-            }
+            throw new UserIsAlreadyAuthorized();
         }
     }
 
     public void setAuthorizedUserName(String sessionToken, UserDto userDto){
-        Session session = (Session) redisTemplate.opsForHash().get(HASH_KEY, sessionToken);
-        if (session == null){
-            throw new InvalidTokenException();
+        Session session = getSession(sessionToken);
+        if (session.getUser_id() != null){
+            userService.setUserName(session.getUser_id(), userDto.name);
         }
         else{
-            if (session.getUser_id() != null){
-                userService.setUserName(session.getUser_id(), userDto.name);
-            }
-            else{
-                throw new UserIsNotAuthorizedException();
-            }
+            throw new UserIsNotAuthorizedException();
         }
     }
 
     public AddressDto getAddress(String sessionToken){
-        Session session = (Session) redisTemplate.opsForHash().get(HASH_KEY, sessionToken);
-        if (session == null){
-            throw new InvalidTokenException();
+        Session session = getSession(sessionToken);
+        String address_id = session.getAddress_id();
+        if (address_id == null){
+            throw new AddressNotFoundForSessionException();
         }
         else{
-            String address_id = session.getAddress_id();
-            if (address_id == null){
-                throw new AddressNotFoundForSessionException();
-            }
-            else{
-                return userService.getAddress(address_id);
-            }
+            return userService.getAddress(address_id);
         }
+
     }
 
     public PaymentDto getPayment(String sessionToken){
-        Session session = (Session) redisTemplate.opsForHash().get(HASH_KEY, sessionToken);
-        if (session == null){
-            throw new InvalidTokenException();
+        Session session = getSession(sessionToken);
+        String payment_id = session.getPayment_id();
+        if (payment_id == null){
+            throw new PaymentNotFoundForSessionException();
         }
         else{
-            String payment_id = session.getPayment_id();
-            if (payment_id == null){
-                throw new PaymentNotFoundForSessionException();
-            }
-            else{
-                return userService.getPayment(payment_id);
-            }
+            return userService.getPayment(payment_id);
         }
     }
 
     public void setAddress(String sessionToken, String address_id){
-        Session session = (Session) redisTemplate.opsForHash().get(HASH_KEY, sessionToken);
-        if (session == null){
-            throw new InvalidTokenException();
-        }
-        else{
-            session.setAddress_id(address_id);
-            redisTemplate.opsForHash().put(HASH_KEY, sessionToken, session);
-        }
+        Session session = getSession(sessionToken);
+        session.setAddress_id(address_id);
+        redisTemplate.opsForHash().put(HASH_KEY, sessionToken, session);
     }
 
     public void setPayment(String sessionToken, String payment_id){
-        Session session = (Session) redisTemplate.opsForHash().get(HASH_KEY, sessionToken);
-        if (session == null){
-            throw new InvalidTokenException();
-        }
-        else{
-            session.setPayment_id(payment_id);
-            redisTemplate.opsForHash().put(HASH_KEY, sessionToken, session);
-        }
+        Session session = getSession(sessionToken);
+        session.setPayment_id(payment_id);
+        putSession(session);
     }
 
     public List<OrderDto> getUserOrders(String sessionToken){
-        return userService.getUserOrders(this.getSessionUser(sessionToken).phone_number);
+        return userService.getUserOrders(getSessionUser(sessionToken).phone_number);
+    }
+
+    public OrderDto getUserOrderById(String sessionToken, String order_id){
+        return userService.getOrderById(getSessionUser(sessionToken).phone_number, order_id);
     }
 
     public List<AddressDto> getUserAddresses(String sessionToken){
@@ -154,64 +128,37 @@ public class SessionService {
     }
 
     public CartDto getCart(String sessionToken){
-        Session session = (Session) redisTemplate.opsForHash().get(HASH_KEY, sessionToken);
-        if (session == null){
-            throw new InvalidTokenException();
-        }
-        else{
-            return cartService.getCart(session.getCartToken());
-        }
+        Session session = getSession(sessionToken);
+        return cartService.getCartDto(session.getCartToken());
     }
 
     public void addToCart(String sessionToken, Long product_id){
-        Session session = (Session) redisTemplate.opsForHash().get(HASH_KEY, sessionToken);
-        if (session == null){
-            throw new InvalidTokenException();
-        }
-        else{
-            cartService.addToCart(session.getCartToken(), product_id);
-        }
+        Session session = getSession(sessionToken);
+        cartService.addToCart(session.getCartToken(), product_id);
     }
 
     public void deleteFromCart(String sessionToken, Long product_id){
+        Session session = getSession(sessionToken);
+        cartService.deleteFromCart(session.getCartToken(), product_id);
+    }
+
+    public void clearCart(String sessionToken) {
+        Session session = getSession(sessionToken);
+        session.setCartToken(cartService.deleteCart(session.getCartToken()));
+        putSession(session);
+    }
+
+    private Session getSession(String sessionToken){
         Session session = (Session) redisTemplate.opsForHash().get(HASH_KEY, sessionToken);
         if (session == null){
             throw new InvalidTokenException();
         }
         else{
-            cartService.deleteFromCart(session.getCartToken(), product_id);
+            return session;
         }
     }
 
-    public void clearCart(String sessionToken){
-        Session session = (Session) redisTemplate.opsForHash().get(HASH_KEY, sessionToken);
-        if (session == null){
-            throw new InvalidTokenException();
-        }
-        else{
-            session.setCartToken(cartService.deleteCart(session.getCartToken()));
-            redisTemplate.opsForHash().put(HASH_KEY, sessionToken, session);
-        }
-    }
-
-    public void addCurrentOrder(String sessionToken, String orderId){
-        Session session = (Session) redisTemplate.opsForHash().get(HASH_KEY, sessionToken);
-        if (session == null){
-            throw new InvalidTokenException();
-        }
-        else{
-            session.getCurrentOrdersId().add(orderId);
-        }
-    }
-
-    public void deleteCurrentOrder(String sessionToken, String orderId){
-        Session session = (Session) redisTemplate.opsForHash().get(HASH_KEY, sessionToken);
-        if (session == null){
-            throw new InvalidTokenException();
-        }
-        else{
-            List<String> orders = session.getCurrentOrdersId();
-            orders.remove(orderId);
-        }
+    private void putSession(Session session){
+        redisTemplate.opsForHash().put(HASH_KEY, session.getId(), session);
     }
 }

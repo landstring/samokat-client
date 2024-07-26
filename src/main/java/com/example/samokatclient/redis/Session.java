@@ -2,7 +2,6 @@ package com.example.samokatclient.redis;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 

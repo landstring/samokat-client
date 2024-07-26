@@ -1,13 +1,17 @@
 package com.example.samokatclient.services;
 
 import com.example.samokatclient.DTO.cart.CartDto;
+import com.example.samokatclient.entities.product.Product;
 import com.example.samokatclient.exceptions.cart.CartNotFoundException;
+import com.example.samokatclient.exceptions.product.ProductNotFoundException;
 import com.example.samokatclient.redis.Cart;
 import com.example.samokatclient.mappers.CartMapper;
+import com.example.samokatclient.repositories.product.ProductRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -16,48 +20,55 @@ public class CartService {
     private final static String HASH_KEY = "Cart";
     private final RedisTemplate redisTemplate;
     private final CartMapper cartMapper;
+    private final ProductRepository productRepository;
 
     public String createCart(){
         String token =UUID.randomUUID().toString();
         Cart cart = new Cart(token);
-        redisTemplate.opsForHash().put(HASH_KEY, token, cart);
+        putCart(cart);
         return token;
     }
 
-    public CartDto getCart(String token){
-        Cart cart = (Cart) redisTemplate.opsForHash().get(HASH_KEY, token);
-        if (cart == null){
-            throw new CartNotFoundException();
-        }
+    public CartDto getCartDto(String token){
+        Cart cart = getCart(token);
         return cartMapper.cartToDto(cart);
     }
 
     public void addToCart(String token, Long productId){
-        Cart cart = (Cart) redisTemplate.opsForHash().get(HASH_KEY, token);
-        if (cart == null){
-            throw new CartNotFoundException();
+        Cart cart = getCart(token);
+        Optional<Product> optionalProduct = productRepository.findById(productId);
+        if (optionalProduct.isPresent()){
+            cart.addToCart(productId);
+            putCart(cart);
         }
-        cart.addToCart(productId);
-        redisTemplate.opsForHash().put(HASH_KEY, token, cart);
+        else{
+            throw new ProductNotFoundException();
+        }
     }
 
     public void deleteFromCart(String token, Long productId){
-        Cart cart = (Cart) redisTemplate.opsForHash().get(HASH_KEY, token);
-        if (cart == null){
-            throw new CartNotFoundException();
-        }
+        Cart cart = getCart(token);
         cart.deleteFromCart(productId);
-        redisTemplate.opsForHash().put(HASH_KEY, token, cart);
+        putCart(cart);
     }
 
     public String deleteCart(String token){
+        getCart(token);                                     //проверка существования корзины
+        redisTemplate.opsForHash().delete(HASH_KEY, token);
+        return createCart();
+    }
+
+    private Cart getCart(String token){
         Cart cart = (Cart) redisTemplate.opsForHash().get(HASH_KEY, token);
         if (cart == null){
             throw new CartNotFoundException();
         }
-        redisTemplate.opsForHash().delete(HASH_KEY, token);
-        return createCart();
+        else{
+            return cart;
+        }
+    }
+
+    private void putCart(Cart cart){
+        redisTemplate.opsForHash().put(HASH_KEY, cart.getId(), cart);
     }
 }
-
-// TODO: 08.07.2024 Реализовать проверку на существование продукта в базе при добавлении 

@@ -46,6 +46,21 @@ public class UserController {
     }
 
     @Operation(
+            summary = "Получить заказ пользователя",
+            description = "Данный метод выдаст данные о заказе по id"
+    )
+    @GetMapping("/orders/{orderId}")
+    @SecurityRequirement(name = "api_key")
+    public ResponseEntity<?> getUserOrderById(
+            @Parameter(hidden = true)
+            @RequestHeader("Authorization") String token,
+
+            @Parameter(description = "id заказа")
+            @PathVariable(value = "orderId") String orderId) {
+        return new ResponseEntity<>(sessionService.getUserOrderById(token, orderId), HttpStatus.OK);
+    }
+
+    @Operation(
             summary = "Получить адреса пользователя",
             description = "Данный метод выдаст адреса, который сохранял пользователь"
     )
