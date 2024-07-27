@@ -1,24 +1,20 @@
 package com.example.samokatclient.DTO.order;
 
-import com.example.samokatclient.entities.user.Address;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
+@Data
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class AddressDto {
-    public String id;
-    public String city;
-    public String home;
-    public String apartment;
-    public String entrance;
-    public Integer plate;
 
-    public AddressDto(Address address){
-        this.id = address.getId();
-        this.city = address.getCity();
-        this.home = address.getHome();
-        this.apartment = address.getApartment();
-        this.entrance = address.getEntrance();
-        this.plate = address.getPlate();
-    }
+    String id;
+    String city;
+    String home;
+    String apartment;
+    String entrance;
+    Integer plate;
+    String userId;
 }

@@ -1,12 +1,18 @@
 package com.example.samokatclient.DTO.cart;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.util.List;
-@NoArgsConstructor
+
+@Data
+@Builder
 @AllArgsConstructor
+@NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class CartDto {
-    public List<CartItem> cartItemList;
-    public Long totalPrice;
+
+    List<CartItem> cartItemList;
+
+    Long totalPrice;
 }

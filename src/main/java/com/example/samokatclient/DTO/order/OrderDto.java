@@ -1,16 +1,22 @@
 package com.example.samokatclient.DTO.order;
 
 import com.example.samokatclient.DTO.cart.CartDto;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
+
+@Data
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class OrderDto {
-    public String id;
-    public CartDto cartDto;
-    public Long totalPrice;
-    public AddressDto addressDto;
-    public PaymentDto paymentDto;
-    public LocalDateTime orderDateTime;
-    public String status;
+    String id;
+    CartDto cartDto;
+    Long totalPrice;
+    AddressDto addressDto;
+    PaymentDto paymentDto;
+    LocalDateTime orderDateTime;
+    String status;
 }

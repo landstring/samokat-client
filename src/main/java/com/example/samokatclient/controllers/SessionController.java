@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
+
 @CrossOrigin
 @Tag(name = "Методы для работы с сессией")
 @RestController
@@ -28,7 +29,7 @@ public class SessionController {
             description = "Данный метод создаст сессию и выдаст токен"
     )
     @GetMapping("/create")
-    public ResponseEntity<?> createSession(){
+    public ResponseEntity<?> createSession() {
         return new ResponseEntity<>(sessionService.createSession(), HttpStatus.OK);
     }
 
@@ -36,7 +37,7 @@ public class SessionController {
             summary = "Авторизация пользователя",
             description =
                     "Данный метод привязывает пользователя к текущей сессии. " +
-                    "Если пользователь впервые авторизуется на сервисе, регистрирует его"
+                            "Если пользователь впервые авторизуется на сервисе, регистрирует его"
     )
     @PostMapping("/authorization")
     @SecurityRequirement(name = "api_key")
@@ -44,7 +45,7 @@ public class SessionController {
             @Parameter(hidden = true)
             @RequestHeader("Authorization") String token,
 
-            @RequestBody UserDto userDto){
+            @RequestBody UserDto userDto) {
         sessionService.authorizeUser(token, userDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -58,7 +59,7 @@ public class SessionController {
     @SecurityRequirement(name = "api_key")
     public ResponseEntity<?> getAddress(
             @Parameter(hidden = true)
-            @RequestHeader("Authorization") String token){
+            @RequestHeader("Authorization") String token) {
         return new ResponseEntity<>(sessionService.getAddress(token), HttpStatus.OK);
     }
 
@@ -71,7 +72,7 @@ public class SessionController {
     @SecurityRequirement(name = "api_key")
     public ResponseEntity<?> getPayment(
             @Parameter(hidden = true)
-            @RequestHeader("Authorization") String token){
+            @RequestHeader("Authorization") String token) {
         return new ResponseEntity<>(sessionService.getPayment(token), HttpStatus.OK);
     }
 
@@ -79,7 +80,7 @@ public class SessionController {
             summary = "Задать адрес",
             description =
                     "Данный метод задаёт возможный адрес для заказа по ID. Адрес перед этим уже должен быть " +
-                    "в системе"
+                            "в системе"
     )
     @GetMapping("/address/{address_id}")
     @SecurityRequirement(name = "api_key")
@@ -88,7 +89,7 @@ public class SessionController {
             @RequestHeader("Authorization") String token,
 
             @Parameter(description = "ID адреса")
-            @PathVariable("address_id") String address_id){
+            @PathVariable("address_id") String address_id) {
         sessionService.setAddress(token, address_id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -97,7 +98,7 @@ public class SessionController {
             summary = "Задать способ оплаты",
             description =
                     "Данный метод задаёт возможный способ оплаты для заказа по ID. Способ оплаты перед этим уже " +
-                    "должен быть в системе"
+                            "должен быть в системе"
     )
     @GetMapping("/payment/{payment_id}")
     @SecurityRequirement(name = "api_key")
@@ -106,7 +107,7 @@ public class SessionController {
             @RequestHeader("Authorization") String token,
 
             @Parameter(description = "ID способа оплаты")
-            @PathVariable("payment_id") String payment_id){
+            @PathVariable("payment_id") String payment_id) {
         sessionService.setPayment(token, payment_id);
         return new ResponseEntity<>(HttpStatus.OK);
     }

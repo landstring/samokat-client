@@ -18,4 +18,3 @@ public class CurrentOrder implements Serializable {
     private String id;
     private String status;
 }
-

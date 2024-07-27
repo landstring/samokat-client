@@ -13,7 +13,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -26,7 +25,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class CurrentOrderService {
     private final static String HASH_KEY = "CurrentOrderClient";
-    private final RedisTemplate redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
     private final CartMapper cartMapper;
     private final KafkaTemplate<String, NewOrderDto> kafkaTemplate;
     private final SessionService sessionService;
@@ -36,20 +35,20 @@ public class CurrentOrderService {
         String orderToken = generateOrderToken();
 
         PaymentInfoDto paymentInfoDto = new PaymentInfoDto(
-                sessionService.getPayment(sessionToken).card_number,
-                sessionService.getPayment(sessionToken).expiration_date,
-                sessionService.getPayment(sessionToken).cvc,
-                sessionService.getCart(sessionToken).totalPrice,
+                sessionService.getPayment(sessionToken).getCard_number(),
+                sessionService.getPayment(sessionToken).getExpiration_date(),
+                sessionService.getPayment(sessionToken).getCvc(),
+                sessionService.getCart(sessionToken).getTotalPrice(),
                 "http://localhost:8082/api"
         );
         String payment_code = initPayment(paymentInfoDto);
         NewOrderDto newOrderDto = new NewOrderDto(
                 orderToken,
                 cartMapper.toListOrderCartItem(sessionService.getCart(sessionToken)),
-                sessionService.getCart(sessionToken).totalPrice,
-                sessionService.getSessionUser(sessionToken).phone_number,
-                sessionService.getAddress(sessionToken).id,
-                sessionService.getPayment(sessionToken).id,
+                sessionService.getCart(sessionToken).getTotalPrice(),
+                sessionService.getSessionUser(sessionToken).getPhone_number(),
+                sessionService.getAddress(sessionToken).getId(),
+                sessionService.getPayment(sessionToken).getId(),
                 LocalDateTime.now(),
                 payment_code,
                 "CREATED"
@@ -60,7 +59,7 @@ public class CurrentOrderService {
         return payment_code;
     }
 
-    private String generateOrderToken(){
+    private String generateOrderToken() {
         String orderToken;
         Optional<Order> optionalOrder;
         do {
@@ -72,7 +71,7 @@ public class CurrentOrderService {
     }
 
     private String initPayment(PaymentInfoDto paymentInfoDto) {
-        try{
+        try {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(paymentInfoDto);
             HttpClient client = HttpClient.newHttpClient();
@@ -84,13 +83,12 @@ public class CurrentOrderService {
                     .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             return response.body();
-        }
-        catch (Exception ex){
+        } catch (Exception ex) {
             throw new BadConnectionToPaymentException();
         }
     }
 
-    private void putCurrentOrder(CurrentOrder currentOrder){
+    private void putCurrentOrder(CurrentOrder currentOrder) {
         redisTemplate.opsForHash().put(HASH_KEY, currentOrder.getId(), currentOrder);
     }
 

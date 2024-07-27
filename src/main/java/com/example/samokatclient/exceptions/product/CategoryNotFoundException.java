@@ -1,8 +1,13 @@
 package com.example.samokatclient.exceptions.product;
 
-import lombok.NoArgsConstructor;
-
-@NoArgsConstructor
 public class CategoryNotFoundException extends RuntimeException{
+
+    public CategoryNotFoundException() {
+        super();
+    }
+
+    public CategoryNotFoundException(String message) {
+        super(message);
+    }
 
 }

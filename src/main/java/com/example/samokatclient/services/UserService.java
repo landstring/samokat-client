@@ -32,7 +32,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class UserService {
     private final static String HASH_KEY = "CurrentOrderClient";
-    private final RedisTemplate redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
     private final OrderRepository orderRepository;
     private final AddressRepository addressRepository;
     private final PaymentRepository paymentRepository;
@@ -42,21 +42,15 @@ public class UserService {
     private final UserRepository userRepository;
 
     public SamokatUser getUserById(String user_id){
-        Optional<SamokatUser> optionalUser = userRepository.findById(user_id);
-        if (optionalUser.isPresent()){
-            return optionalUser.get();
-        }
-        else{
-            throw new UserNotFoundException();
-        }
+        return userRepository.findById(user_id)
+                .orElseThrow(UserNotFoundException::new);
     }
 
     public void authorizeUser(UserDto userDto){
-        Optional<SamokatUser> optionalUser = userRepository.findById(userDto.phone_number);
-        if (optionalUser.isEmpty()) {
-            SamokatUser samokatUser = new SamokatUser(userDto.phone_number, userDto.name);
+        userRepository.findById(userDto.getPhone_number()).ifPresentOrElse(samokatUser -> {},() -> {
+            SamokatUser samokatUser = new SamokatUser(userDto.getPhone_number(), userDto.getName());
             userRepository.save(samokatUser);
-        }
+        });
     }
 
     public void setUserName(String user_id, String name){
@@ -77,9 +71,9 @@ public class UserService {
                 .stream()
                 .map(orderMapper::toDto)
                 .peek(orderDto -> {
-                    String status = getCurrentOrderStatus(orderDto.id);
+                    String status = getCurrentOrderStatus(orderDto.getId());
                     if (status != null){
-                        orderDto.status = status;
+                        orderDto.setStatus(status);
                     }
                 })
                 .toList();
@@ -93,7 +87,7 @@ public class UserService {
                 OrderDto orderDto = orderMapper.toDto(order);
                 String status = getCurrentOrderStatus(order_id);
                 if (status != null){
-                    orderDto.status = status;
+                    orderDto.setStatus(status);
                 }
                 return orderDto;
             }

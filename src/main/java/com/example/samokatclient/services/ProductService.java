@@ -6,6 +6,8 @@ import com.example.samokatclient.entities.product.Category;
 import com.example.samokatclient.entities.product.Product;
 import com.example.samokatclient.exceptions.product.CategoryNotFoundException;
 import com.example.samokatclient.exceptions.product.ProductNotFoundException;
+import com.example.samokatclient.mappers.CategoryMapper;
+import com.example.samokatclient.mappers.ProductMapper;
 import com.example.samokatclient.repositories.product.CategoryRepository;
 import com.example.samokatclient.repositories.product.ProductRepository;
 import jakarta.persistence.EntityManager;
@@ -27,17 +29,22 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final EntityManager entityManager;
+    private final ProductMapper productMapper;
+    private final CategoryMapper categoryMapper;
+
 
     public ProductDto getProductById(Long id){
-        Optional<Product> optionalProduct = productRepository.findById(id);
-        Product product;
-        if (optionalProduct.isPresent()){
-            product = optionalProduct.get();
-        }
-        else{
-            throw new ProductNotFoundException();
-        }
-        return new ProductDto(product);
+        Product product = productRepository.findById(id).orElseThrow(
+                () -> new ProductNotFoundException("Продукт не найден")
+        );
+        return ProductDto.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .productImage_url(product.getImage_url())
+                .category(categoryMapper.toDto(product.getCategory()))
+                .build();
     }
 
     public List<ProductDto> getAllProductsPage(int pageNumber, int pageSize){
@@ -45,7 +52,7 @@ public class ProductService {
         return productRepository
                 .findAll(pageable)
                 .stream()
-                .map(ProductDto::new)
+                .map(productMapper::toDto)
                 .toList();
     }
 
@@ -53,7 +60,7 @@ public class ProductService {
         return categoryRepository
                 .findAllByParentIsNull()
                 .stream()
-                .map(CategoryDto::new)
+                .map(categoryMapper::toDto)
                 .toList();
     }
 
@@ -74,7 +81,7 @@ public class ProductService {
         List<Product> allProducts = entityManager.createQuery(query).getResultList();
         return allProducts
                 .stream()
-                .map(ProductDto::new)
+                .map(productMapper::toDto)
                 .toList()
                 .subList( (pageNumber - 1) * pageSize
                         , Integer.min( (pageNumber - 1) * pageSize + pageSize
@@ -82,16 +89,13 @@ public class ProductService {
     }
 
     public List<ProductDto> getAllProductsFromCategory(Long category_id, int pageNumber, int pageSize){
-        Optional<Category> optionalCategory = categoryRepository.findById(category_id);
-        if (optionalCategory.isPresent()){
-            PageRequest pageable = PageRequest.of(pageNumber - 1, pageSize);
-            return productRepository
-                    .findProductsByCategory_Id(category_id, pageable)
-                    .map(ProductDto::new)
-                    .toList();
+        if (categoryRepository.existsById(category_id)) {
+            throw new CategoryNotFoundException("Категория не найдена");
         }
-        else{
-            throw new CategoryNotFoundException();
-        }
+        PageRequest pageable = PageRequest.of(pageNumber - 1, pageSize);
+        return productRepository
+                .findProductsByCategory_Id(category_id, pageable)
+                .map(productMapper::toDto)
+                .toList();
     }
 }

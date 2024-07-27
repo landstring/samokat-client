@@ -1,4 +1,4 @@
-package com.example.samokatclient.DTO.cart;
+package com.example.samokatclient.DTO.order;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -8,9 +8,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class OrderCartItem {
-
-    Long product_id;
-
-    Integer count;
+public class NewStatusDto {
+    String order_id;
+    String status;
 }

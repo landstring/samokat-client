@@ -1,15 +1,14 @@
 package com.example.samokatclient.DTO.session;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
+@Data
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserDto {
-    public String phone_number;
-    public String name;
-
-    public UserDto(String phone_number, String name){
-        this.phone_number = phone_number;
-        this.name = name;
-    }
+    String phone_number;
+    String name;
 }
