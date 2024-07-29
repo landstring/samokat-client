@@ -6,8 +6,4 @@ public class BadConnectionToPaymentException extends RuntimeException {
         super();
     }
 
-    public BadConnectionToPaymentException(String message) {
-        super(message);
-    }
-
 }

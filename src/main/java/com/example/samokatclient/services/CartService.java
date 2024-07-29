@@ -5,14 +5,17 @@ import com.example.samokatclient.entities.product.Product;
 import com.example.samokatclient.exceptions.cart.CartNotFoundException;
 import com.example.samokatclient.exceptions.cart.ProductNotFoundInCartException;
 import com.example.samokatclient.exceptions.product.ProductNotFoundException;
-import com.example.samokatclient.redis.Cart;
 import com.example.samokatclient.mappers.CartMapper;
+import com.example.samokatclient.redis.Cart;
 import com.example.samokatclient.repositories.product.ProductRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor

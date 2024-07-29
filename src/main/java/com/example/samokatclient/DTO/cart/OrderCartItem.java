@@ -9,8 +9,6 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OrderCartItem {
-
-    Long product_id;
-
+    Long productId;
     Integer count;
 }

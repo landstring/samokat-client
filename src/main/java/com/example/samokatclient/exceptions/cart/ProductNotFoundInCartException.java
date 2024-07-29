@@ -6,8 +6,4 @@ public class ProductNotFoundInCartException extends RuntimeException {
         super();
     }
 
-    public ProductNotFoundInCartException(String message) {
-        super(message);
-    }
-
 }

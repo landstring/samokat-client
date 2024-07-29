@@ -78,9 +78,9 @@ public class UserController {
     )
     @GetMapping("/payments")
     @SecurityRequirement(name = "api_key")
-    public ResponseEntity<?>getUserPayments(
+    public ResponseEntity<?> getUserPayments(
             @Parameter(hidden = true)
-            @RequestHeader("Authorization") String token){
+            @RequestHeader("Authorization") String token) {
         return new ResponseEntity<>(sessionService.getUserPayments(token), HttpStatus.OK);
     }
 
@@ -94,7 +94,7 @@ public class UserController {
             @Parameter(hidden = true)
             @RequestHeader("Authorization") String token,
 
-            @RequestBody UserDto userDto){
+            @RequestBody UserDto userDto) {
         sessionService.setAuthorizedUserName(token, userDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -109,7 +109,7 @@ public class UserController {
             @Parameter(hidden = true)
             @RequestHeader("Authorization") String token,
 
-            @RequestBody AddressDto addressDto){
+            @RequestBody AddressDto addressDto) {
         sessionService.createNewAddress(token, addressDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -124,7 +124,7 @@ public class UserController {
             @Parameter(hidden = true)
             @RequestHeader("Authorization") String token,
 
-            @RequestBody PaymentDto paymentDto){
+            @RequestBody PaymentDto paymentDto) {
         sessionService.createNewPayment(token, paymentDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }

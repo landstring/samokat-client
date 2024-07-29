@@ -26,7 +26,35 @@ public class CurrentOrderController {
     @SecurityRequirement(name = "api_key")
     public ResponseEntity<?> createOrder(
             @Parameter(hidden = true)
-            @RequestHeader("Authorization") String token){
+            @RequestHeader("Authorization") String token) {
         return new ResponseEntity<>(currentOrderService.createOrder(token), HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Отменить текущий заказ",
+            description = "Данный отменит текущий заказ пользователя"
+    )
+    @GetMapping("/cancel/{orderId}")
+    @SecurityRequirement(name = "api_key")
+    public ResponseEntity<?> cancelOrder(
+            @Parameter(description = "Номер заказа")
+            @PathVariable("orderId") String orderId,
+
+            @Parameter(hidden = true)
+            @RequestHeader("Authorization") String sessionToken) {
+        currentOrderService.cancelOrder(sessionToken, orderId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Получить текущие заказы пользователя",
+            description = "Данный метод выдаст все текущие заказы пользователя"
+    )
+    @GetMapping("/")
+    @SecurityRequirement(name = "api_key")
+    public ResponseEntity<?> getCurrentOrders(
+            @Parameter(hidden = true)
+            @RequestHeader("Authorization") String sessionToken) {
+        return new ResponseEntity<>(currentOrderService.getCurrentOrders(sessionToken), HttpStatus.OK);
     }
 }

@@ -1,6 +1,6 @@
 package com.example.samokatclient.exceptions.product;
 
-public class CategoryNotFoundException extends RuntimeException{
+public class CategoryNotFoundException extends RuntimeException {
 
     public CategoryNotFoundException() {
         super();

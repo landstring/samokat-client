@@ -6,8 +6,4 @@ public class OrderNotFoundException extends RuntimeException {
         super();
     }
 
-    public OrderNotFoundException(String message) {
-        super(message);
-    }
-
 }

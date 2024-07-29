@@ -10,8 +10,6 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CartItem {
-
     ProductDto product;
-
     Integer count;
 }

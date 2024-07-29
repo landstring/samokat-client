@@ -70,6 +70,7 @@ public class UserService {
                 .findByUserId(user_id)
                 .stream()
                 .map(orderMapper::toDto)
+                .filter(orderDto -> orderDto.getStatus() != null)
                 .peek(orderDto -> {
                     String status = getCurrentOrderStatus(orderDto.getId());
                     if (status != null){
@@ -79,7 +80,20 @@ public class UserService {
                 .toList();
     }
 
-    public OrderDto getOrderById(String order_id, String user_id){
+    public List<OrderDto> getUserCurrentOrders(String user_id){
+        return orderRepository
+                .findByUserId(user_id)
+                .stream()
+                .map(orderMapper::toDto)
+                .filter(orderDto -> getCurrentOrderStatus(orderDto.getId()) != null)
+                .peek(orderDto -> {
+                    String status = getCurrentOrderStatus(orderDto.getId());
+                    orderDto.setStatus(status);
+                })
+                .toList();
+    }
+
+    public OrderDto getOrderById(String user_id, String order_id){
         Optional<Order> optionalOrder = orderRepository.findById(order_id);
         if (optionalOrder.isPresent()){
             Order order = optionalOrder.get();

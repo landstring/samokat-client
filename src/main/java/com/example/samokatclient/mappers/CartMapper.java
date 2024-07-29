@@ -47,7 +47,7 @@ public class CartMapper {
         List<CartItem> cartItemList = new ArrayList<>();
 
         for (OrderCartItem orderCartItem : orderCartItemList) {
-            product = productService.getProductById(orderCartItem.getProduct_id());
+            product = productService.getProductById(orderCartItem.getProductId());
 
             cartItem = CartItem.builder()
                     .product(product)

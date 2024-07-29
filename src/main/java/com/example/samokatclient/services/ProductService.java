@@ -2,7 +2,6 @@ package com.example.samokatclient.services;
 
 import com.example.samokatclient.DTO.product.CategoryDto;
 import com.example.samokatclient.DTO.product.ProductDto;
-import com.example.samokatclient.entities.product.Category;
 import com.example.samokatclient.entities.product.Product;
 import com.example.samokatclient.exceptions.product.CategoryNotFoundException;
 import com.example.samokatclient.exceptions.product.ProductNotFoundException;
@@ -21,7 +20,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -33,7 +31,7 @@ public class ProductService {
     private final CategoryMapper categoryMapper;
 
 
-    public ProductDto getProductById(Long id){
+    public ProductDto getProductById(Long id) {
         Product product = productRepository.findById(id).orElseThrow(
                 () -> new ProductNotFoundException("Продукт не найден")
         );
@@ -47,7 +45,7 @@ public class ProductService {
                 .build();
     }
 
-    public List<ProductDto> getAllProductsPage(int pageNumber, int pageSize){
+    public List<ProductDto> getAllProductsPage(int pageNumber, int pageSize) {
         PageRequest pageable = PageRequest.of(pageNumber - 1, pageSize);
         return productRepository
                 .findAll(pageable)
@@ -56,7 +54,7 @@ public class ProductService {
                 .toList();
     }
 
-    public List<CategoryDto> getAllCategories(){
+    public List<CategoryDto> getAllCategories() {
         return categoryRepository
                 .findAllByParentIsNull()
                 .stream()
@@ -64,7 +62,7 @@ public class ProductService {
                 .toList();
     }
 
-    public List<ProductDto> searchProductsByKeywords(String keywords, int pageNumber, int pageSize){
+    public List<ProductDto> searchProductsByKeywords(String keywords, int pageNumber, int pageSize) {
         String[] keywordArray = keywords.toLowerCase().split("\\s+");
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Product> query = cb.createQuery(Product.class);
@@ -83,12 +81,12 @@ public class ProductService {
                 .stream()
                 .map(productMapper::toDto)
                 .toList()
-                .subList( (pageNumber - 1) * pageSize
-                        , Integer.min( (pageNumber - 1) * pageSize + pageSize
-                                     , allProducts.size()));
+                .subList((pageNumber - 1) * pageSize
+                        , Integer.min((pageNumber - 1) * pageSize + pageSize
+                                , allProducts.size()));
     }
 
-    public List<ProductDto> getAllProductsFromCategory(Long category_id, int pageNumber, int pageSize){
+    public List<ProductDto> getAllProductsFromCategory(Long category_id, int pageNumber, int pageSize) {
         if (categoryRepository.existsById(category_id)) {
             throw new CategoryNotFoundException("Категория не найдена");
         }

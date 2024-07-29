@@ -1,6 +1,5 @@
 package com.example.samokatclient.controllers;
 
-import com.example.samokatclient.DTO.cart.CartDto;
 import com.example.samokatclient.services.SessionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -18,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/cart")
 public class CartController {
     private final SessionService sessionService;
+
     @Operation(
             summary = "Получить состояние корзины",
             description = "Данный метод выводит продукты, которые на данный момент содержатся в корзине"
@@ -26,7 +26,7 @@ public class CartController {
     @SecurityRequirement(name = "api_key")
     private ResponseEntity<?> getCart(
             @Parameter(hidden = true)
-            @RequestHeader("Authorization") String token){
+            @RequestHeader("Authorization") String token) {
         return new ResponseEntity<>(sessionService.getCart(token), HttpStatus.OK);
     }
 
@@ -41,7 +41,7 @@ public class CartController {
             @RequestHeader("Authorization") String token,
 
             @Parameter(description = "ID продукта")
-            @PathVariable("product_id") Long product_id){
+            @PathVariable("product_id") Long product_id) {
         sessionService.addToCart(token, product_id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -57,7 +57,7 @@ public class CartController {
             @RequestHeader("Authorization") String token,
 
             @Parameter(description = "ID продукта")
-            @PathVariable("product_id") Long product_id){
+            @PathVariable("product_id") Long product_id) {
         sessionService.deleteFromCart(token, product_id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -70,7 +70,7 @@ public class CartController {
     @SecurityRequirement(name = "api_key")
     private ResponseEntity<?> deleteFromCart(
             @Parameter(hidden = true)
-            @RequestHeader("Authorization") String token){
+            @RequestHeader("Authorization") String token) {
         sessionService.clearCart(token);
         return new ResponseEntity<>(HttpStatus.OK);
     }

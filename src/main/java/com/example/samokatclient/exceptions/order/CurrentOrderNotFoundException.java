@@ -6,8 +6,4 @@ public class CurrentOrderNotFoundException extends RuntimeException {
         super();
     }
 
-    public CurrentOrderNotFoundException(String message) {
-        super(message);
-    }
-
 }

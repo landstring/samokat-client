@@ -6,18 +6,13 @@ import com.example.samokatclient.DTO.order.OrderDto;
 import com.example.samokatclient.DTO.order.PaymentDto;
 import com.example.samokatclient.DTO.session.UserDto;
 import com.example.samokatclient.exceptions.session.*;
-import com.example.samokatclient.mappers.OrderMapper;
 import com.example.samokatclient.mappers.UserMapper;
-import com.example.samokatclient.redis.CurrentOrder;
 import com.example.samokatclient.redis.Session;
 import lombok.AllArgsConstructor;
-import org.hibernate.query.Order;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -101,6 +96,10 @@ public class SessionService {
 
     public OrderDto getUserOrderById(String sessionToken, String order_id) {
         return userService.getOrderById(getSessionUser(sessionToken).getPhone_number(), order_id);
+    }
+
+    public List<OrderDto> getUserCurrentOrders(String sessionToken) {
+        return userService.getUserCurrentOrders(getSessionUser(sessionToken).getPhone_number());
     }
 
     public List<AddressDto> getUserAddresses(String sessionToken) {

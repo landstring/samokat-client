@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class AddressMapper {
-    public Address fromDto(AddressDto addressDto){
+    public Address fromDto(AddressDto addressDto) {
         return Address.builder()
                 .id(addressDto.getId())
                 .plate(addressDto.getPlate())
@@ -18,7 +18,7 @@ public class AddressMapper {
                 .build();
     }
 
-    public AddressDto toDto(Address address){
+    public AddressDto toDto(Address address) {
         return AddressDto.builder()
                 .id(address.getId())
                 .plate(address.getPlate())

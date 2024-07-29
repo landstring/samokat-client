@@ -1,6 +1,5 @@
 package com.example.samokatclient.DTO.order;
 
-import com.example.samokatclient.entities.user.Payment;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
