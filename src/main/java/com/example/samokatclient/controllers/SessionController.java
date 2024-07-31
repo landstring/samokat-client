@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Методы для работы с сессией")
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/session")
+@RequestMapping("/api/v1/session")
 public class SessionController {
     private final SessionService sessionService;
 
@@ -38,10 +38,10 @@ public class SessionController {
     @SecurityRequirement(name = "api_key")
     public ResponseEntity<?> authorization(
             @Parameter(hidden = true)
-            @RequestHeader("Authorization") String token,
+            @RequestHeader("Authorization") String sessionToken,
 
             @RequestBody UserDto userDto) {
-        sessionService.authorizeUser(token, userDto);
+        sessionService.authorizeUser(sessionToken, userDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -54,8 +54,8 @@ public class SessionController {
     @SecurityRequirement(name = "api_key")
     public ResponseEntity<?> getAddress(
             @Parameter(hidden = true)
-            @RequestHeader("Authorization") String token) {
-        return new ResponseEntity<>(sessionService.getAddress(token), HttpStatus.OK);
+            @RequestHeader("Authorization") String sessionToken) {
+        return new ResponseEntity<>(sessionService.getAddress(sessionToken), HttpStatus.OK);
     }
 
     @Operation(
@@ -67,8 +67,8 @@ public class SessionController {
     @SecurityRequirement(name = "api_key")
     public ResponseEntity<?> getPayment(
             @Parameter(hidden = true)
-            @RequestHeader("Authorization") String token) {
-        return new ResponseEntity<>(sessionService.getPayment(token), HttpStatus.OK);
+            @RequestHeader("Authorization") String sessionToken) {
+        return new ResponseEntity<>(sessionService.getPayment(sessionToken), HttpStatus.OK);
     }
 
     @Operation(
@@ -77,15 +77,15 @@ public class SessionController {
                     "Данный метод задаёт возможный адрес для заказа по ID. Адрес перед этим уже должен быть " +
                             "в системе"
     )
-    @GetMapping("/address/{address_id}")
+    @GetMapping("/address/{addressId}")
     @SecurityRequirement(name = "api_key")
     public ResponseEntity<?> setAddress(
             @Parameter(hidden = true)
-            @RequestHeader("Authorization") String token,
+            @RequestHeader("Authorization") String sessionToken,
 
             @Parameter(description = "ID адреса")
-            @PathVariable("address_id") String address_id) {
-        sessionService.setAddress(token, address_id);
+            @PathVariable("addressId") String addressId) {
+        sessionService.setAddress(sessionToken, addressId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -95,15 +95,15 @@ public class SessionController {
                     "Данный метод задаёт возможный способ оплаты для заказа по ID. Способ оплаты перед этим уже " +
                             "должен быть в системе"
     )
-    @GetMapping("/payment/{payment_id}")
+    @GetMapping("/payment/{paymentId}")
     @SecurityRequirement(name = "api_key")
     public ResponseEntity<?> setPayment(
             @Parameter(hidden = true)
-            @RequestHeader("Authorization") String token,
+            @RequestHeader("Authorization") String sessionToken,
 
             @Parameter(description = "ID способа оплаты")
-            @PathVariable("payment_id") String payment_id) {
-        sessionService.setPayment(token, payment_id);
+            @PathVariable("paymentId") String paymentId) {
+        sessionService.setPayment(sessionToken, paymentId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

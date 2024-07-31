@@ -13,7 +13,7 @@ import java.util.List;
 
 @Configuration
 @OpenAPIDefinition
-public class SwaggerConfig {
+public class SwaggerConfiguration {
     @Bean
     public OpenAPI openAPI() {
         return new OpenAPI()

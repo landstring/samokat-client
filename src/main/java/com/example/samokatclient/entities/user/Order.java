@@ -1,29 +1,32 @@
 package com.example.samokatclient.entities.user;
 
-import com.example.samokatclient.DTO.cart.OrderCartItem;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Document
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class Order {
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class Order implements Serializable {
     @Id
-    private String id;
+    String id;
 
-    private List<OrderCartItem> orderCartItemList;
-    private Long totalPrice;
+    List<OrderCartItem> orderCartItemList;
+    Long totalPrice;
     @Indexed
-    private String userId;
-    private String address_id;
-    private String payment_id;
+    String userId;
+    String addressId;
+    String paymentId;
 
-    private LocalDateTime orderDateTime;
-    private String status;
+    LocalDateTime orderDateTime;
+    String status;
 }

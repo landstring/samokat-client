@@ -15,5 +15,4 @@ public class AddressDto {
     String apartment;
     String entrance;
     Integer plate;
-    String userId;
 }

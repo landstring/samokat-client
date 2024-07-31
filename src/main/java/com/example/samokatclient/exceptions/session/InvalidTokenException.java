@@ -1,9 +1,14 @@
 package com.example.samokatclient.exceptions.session;
 
-public class InvalidTokenException extends RuntimeException {
+import com.example.samokatclient.exceptions.SamokatClientRuntimeException;
+
+public class InvalidTokenException extends SamokatClientRuntimeException {
 
     public InvalidTokenException() {
         super();
     }
 
+    public InvalidTokenException(String message) {
+        super(message);
+    }
 }

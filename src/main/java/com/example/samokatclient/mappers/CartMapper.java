@@ -1,10 +1,11 @@
 package com.example.samokatclient.mappers;
 
 import com.example.samokatclient.DTO.cart.CartDto;
-import com.example.samokatclient.DTO.cart.CartItem;
-import com.example.samokatclient.DTO.cart.OrderCartItem;
+import com.example.samokatclient.DTO.cart.CartItemDto;
+import com.example.samokatclient.entities.user.OrderCartItem;
 import com.example.samokatclient.DTO.product.ProductDto;
-import com.example.samokatclient.redis.Cart;
+import com.example.samokatclient.entities.session.Cart;
+import com.example.samokatclient.entities.session.CartItem;
 import com.example.samokatclient.services.ProductService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -16,57 +17,53 @@ import java.util.Map;
 @Component
 @AllArgsConstructor
 public class CartMapper {
-
     private final ProductService productService;
+    private final ProductMapper productMapper;
 
     public CartDto cartToDto(Cart cart) {
-        long totalCost = 0L;
-        CartItem cartItem;
-        ProductDto product;
-        Map<Long, Integer> productsTreeMap = cart.getProducts();
-        List<CartItem> cartItemList = new ArrayList<>();
-
-        for (Map.Entry<Long, Integer> entry : productsTreeMap.entrySet()) {
-            product = productService.getProductById(entry.getKey());
-
-            cartItem = CartItem.builder()
-                    .product(product)
-                    .count(entry.getValue())
+        long totalPrice = 0L;
+        Map<Long, CartItem> productsTreeMap = cart.getProducts();
+        List<CartItemDto> cartItemDtoList = new ArrayList<>();
+        for (Map.Entry<Long, CartItem> entry : productsTreeMap.entrySet()) {
+            ProductDto productDto = productMapper.toDto(entry.getValue().getProduct());
+            CartItemDto cartItemDto = CartItemDto.builder()
+                    .productDto(productDto)
+                    .count(entry.getValue().getCount())
                     .build();
-
-            totalCost += product.price * entry.getValue();
-            cartItemList.add(cartItem);
+            totalPrice += productDto.getPrice() * entry.getValue().getCount();
+            cartItemDtoList.add(cartItemDto);
         }
-        return new CartDto(cartItemList, totalCost);
+        return new CartDto(cartItemDtoList, totalPrice);
     }
 
     public CartDto listOrderCartItemToDto(List<OrderCartItem> orderCartItemList) {
-        long totalCost = 0L;
-        CartItem cartItem;
-        ProductDto product;
-        List<CartItem> cartItemList = new ArrayList<>();
-
+        long totalPrice = 0L;
+        List<CartItemDto> cartItemDtoList = new ArrayList<>();
         for (OrderCartItem orderCartItem : orderCartItemList) {
-            product = productService.getProductById(orderCartItem.getProductId());
-
-            cartItem = CartItem.builder()
-                    .product(product)
+            ProductDto productDto = productMapper.toDto(productService.getProductById(orderCartItem.getProductId()));
+            CartItemDto cartItemDto = CartItemDto.builder()
+                    .productDto(productDto)
                     .count(orderCartItem.getCount())
                     .build();
 
-            totalCost += product.price * orderCartItem.getCount();
-            cartItemList.add(cartItem);
+            totalPrice += productDto.getPrice() * orderCartItem.getCount();
+            cartItemDtoList.add(cartItemDto);
         }
-        return new CartDto(cartItemList, totalCost);
+        return CartDto.builder()
+                .cartItemDtoList(cartItemDtoList)
+                .totalPrice(totalPrice)
+                .build();
     }
 
     public List<OrderCartItem> toListOrderCartItem(CartDto cartDto) {
         List<OrderCartItem> orderCartItemList = new ArrayList<>();
-
-        for (CartItem cartItem : cartDto.getCartItemList()) {
-            orderCartItemList.add(new OrderCartItem(cartItem.getProduct().id, cartItem.getCount()));
+        for (CartItemDto cartItemDto : cartDto.getCartItemDtoList()) {
+            orderCartItemList.add(
+                    OrderCartItem.builder()
+                            .productId(cartItemDto.getProductDto().getId())
+                            .count(cartItemDto.getCount())
+                            .build());
         }
-
         return orderCartItemList;
     }
 }

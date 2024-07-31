@@ -1,9 +1,14 @@
 package com.example.samokatclient.exceptions.payment;
 
-public class BadConnectionToPaymentException extends RuntimeException {
+import com.example.samokatclient.exceptions.SamokatClientRuntimeException;
+
+public class BadConnectionToPaymentException extends SamokatClientRuntimeException {
 
     public BadConnectionToPaymentException() {
         super();
     }
 
+    public BadConnectionToPaymentException(String message) {
+        super(message);
+    }
 }

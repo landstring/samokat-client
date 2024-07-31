@@ -2,6 +2,7 @@ package com.example.samokatclient.services;
 
 import com.example.samokatclient.DTO.product.CategoryDto;
 import com.example.samokatclient.DTO.product.ProductDto;
+import com.example.samokatclient.entities.product.Category;
 import com.example.samokatclient.entities.product.Product;
 import com.example.samokatclient.exceptions.product.CategoryNotFoundException;
 import com.example.samokatclient.exceptions.product.ProductNotFoundException;
@@ -30,19 +31,20 @@ public class ProductService {
     private final ProductMapper productMapper;
     private final CategoryMapper categoryMapper;
 
-
-    public ProductDto getProductById(Long id) {
-        Product product = productRepository.findById(id).orElseThrow(
-                () -> new ProductNotFoundException("Продукт не найден")
+    public Product getProductById(Long productId) {
+        return productRepository.findById(productId).orElseThrow(
+                () -> new ProductNotFoundException("Такого продукта не существует")
         );
-        return ProductDto.builder()
-                .id(product.getId())
-                .name(product.getName())
-                .description(product.getDescription())
-                .price(product.getPrice())
-                .productImage_url(product.getImage_url())
-                .category(categoryMapper.toDto(product.getCategory()))
-                .build();
+    }
+
+    public Category getCategoryById(Long categoryId) {
+        return categoryRepository.findById(categoryId).orElseThrow(
+                () -> new CategoryNotFoundException("Такой категории не существует")
+        );
+    }
+
+    public ProductDto getProduct(Long productId) {
+        return productMapper.toDto(getProductById(productId));
     }
 
     public List<ProductDto> getAllProductsPage(int pageNumber, int pageSize) {
@@ -86,13 +88,11 @@ public class ProductService {
                                 , allProducts.size()));
     }
 
-    public List<ProductDto> getAllProductsFromCategory(Long category_id, int pageNumber, int pageSize) {
-        if (categoryRepository.existsById(category_id)) {
-            throw new CategoryNotFoundException("Категория не найдена");
-        }
+    public List<ProductDto> getAllProductsFromCategory(Long categoryId, int pageNumber, int pageSize) {
+        Category category = getCategoryById(categoryId);
         PageRequest pageable = PageRequest.of(pageNumber - 1, pageSize);
         return productRepository
-                .findProductsByCategory_Id(category_id, pageable)
+                .findProductsByCategory_Id(category.getId(), pageable)
                 .map(productMapper::toDto)
                 .toList();
     }

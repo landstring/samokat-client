@@ -8,25 +8,22 @@ import org.springframework.stereotype.Component;
 public class AddressMapper {
     public Address fromDto(AddressDto addressDto) {
         return Address.builder()
-                .id(addressDto.getId())
-                .plate(addressDto.getPlate())
-                .userId(addressDto.getUserId())
-                .apartment(addressDto.getApartment())
                 .city(addressDto.getCity())
-                .entrance(addressDto.getEntrance())
                 .home(addressDto.getHome())
+                .apartment(addressDto.getApartment())
+                .entrance(addressDto.getEntrance())
+                .plate(addressDto.getPlate())
                 .build();
     }
 
     public AddressDto toDto(Address address) {
         return AddressDto.builder()
                 .id(address.getId())
-                .plate(address.getPlate())
-                .userId(address.getUserId())
-                .home(address.getHome())
                 .city(address.getCity())
-                .entrance(address.getEntrance())
+                .home(address.getHome())
                 .apartment(address.getApartment())
+                .entrance(address.getEntrance())
+                .plate(address.getPlate())
                 .build();
     }
 }

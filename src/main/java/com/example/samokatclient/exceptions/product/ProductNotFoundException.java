@@ -1,6 +1,8 @@
 package com.example.samokatclient.exceptions.product;
 
-public class ProductNotFoundException extends RuntimeException {
+import com.example.samokatclient.exceptions.SamokatClientRuntimeException;
+
+public class ProductNotFoundException extends SamokatClientRuntimeException {
 
     public ProductNotFoundException() {
         super();

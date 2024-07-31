@@ -1,6 +1,8 @@
 package com.example.samokatclient.exceptions.order;
 
-public class PaymentNotFoundException extends RuntimeException {
+import com.example.samokatclient.exceptions.SamokatClientRuntimeException;
+
+public class PaymentNotFoundException extends SamokatClientRuntimeException {
 
     public PaymentNotFoundException() {
         super();

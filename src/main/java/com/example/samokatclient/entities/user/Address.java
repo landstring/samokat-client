@@ -1,22 +1,27 @@
 package com.example.samokatclient.entities.user;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.io.Serializable;
+
 @Document
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class Address {
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class Address implements Serializable {
     @Id
-    private String id;
-    private String city;
-    private String home;
-    private String apartment;
-    private String entrance;
-    private Integer plate;
+    String id;
+    String city;
+    String home;
+    String apartment;
+    String entrance;
+    Integer plate;
     @Indexed
-    private String userId;
+    String userId;
 }

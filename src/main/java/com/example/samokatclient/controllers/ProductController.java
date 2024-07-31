@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/api/v1")
 public class ProductController {
     private final ProductService productService;
 
@@ -32,10 +32,10 @@ public class ProductController {
                     "Выводит все продукты для данной категории. Если у категории есть дочерние," +
                             " возьмёт продукты из каждой, объединив их в список"
     )
-    @GetMapping("/categories/{category_id}")
+    @GetMapping("/categories/{categoryId}")
     private ResponseEntity<?> getCategories(
             @Parameter(description = "ID категории")
-            @PathVariable("category_id") Long category_id,
+            @PathVariable("categoryId") Long categoryId,
 
             @Parameter(description = "Номер страницы")
             @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
@@ -43,7 +43,7 @@ public class ProductController {
             @Parameter(description = "Размер страницы")
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
         return new ResponseEntity<>(
-                productService.getAllProductsFromCategory(category_id, pageNumber, pageSize),
+                productService.getAllProductsFromCategory(categoryId, pageNumber, pageSize),
                 HttpStatus.OK
         );
     }
@@ -67,12 +67,12 @@ public class ProductController {
             summary = "Вывести продукт",
             description = "Выводит информацию о конкретном продукте"
     )
-    @GetMapping("/products/{product_id}")
+    @GetMapping("/products/{productId}")
     private ResponseEntity<?> getProduct(
             @Parameter(description = "ID продукта")
-            @PathVariable("product_id") Long product_id) {
+            @PathVariable("productId") Long productId) {
 
-        return new ResponseEntity<>(productService.getProductById(product_id), HttpStatus.OK);
+        return new ResponseEntity<>(productService.getProduct(productId), HttpStatus.OK);
     }
 
     @Operation(

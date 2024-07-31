@@ -10,8 +10,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PaymentDto {
     String id;
-    String card_number;
-    String expiration_date;
+    String cardNumber;
+    String expirationDate;
     Integer cvc;
-
 }

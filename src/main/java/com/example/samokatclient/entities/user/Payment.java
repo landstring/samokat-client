@@ -1,21 +1,26 @@
 package com.example.samokatclient.entities.user;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.io.Serializable;
+
 @Document
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class Payment {
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class Payment implements Serializable {
     @Id
-    private String id;
+    String id;
 
-    private String card_number;
-    private String expiration_date;
-    private Integer cvc;
+    String cardNumber;
+    String expirationDate;
+    Integer cvc;
     @Indexed
-    private String userId;
+    String userId;
 }

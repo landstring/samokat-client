@@ -13,7 +13,9 @@ spring:
       show_sql: true
   data:
     redis:
-      host: 127.0.0.1
+      repositories:
+        enabled: true
+      host: 0.0.0.0
       port: 6379
     mongodb:
       username: root
@@ -24,3 +26,4 @@ spring:
       host: localhost
 server:
   port: 8080
+webhook-uri: http://localhost:8082/api

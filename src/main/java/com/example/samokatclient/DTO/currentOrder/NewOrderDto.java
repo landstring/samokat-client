@@ -1,6 +1,6 @@
-package com.example.samokatclient.DTO.order;
+package com.example.samokatclient.DTO.currentOrder;
 
-import com.example.samokatclient.DTO.cart.OrderCartItem;
+import com.example.samokatclient.entities.user.OrderCartItem;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -16,10 +16,10 @@ public class NewOrderDto {
     String id;
     List<OrderCartItem> orderCartItemList;
     Long totalPrice;
-    String user_id;
-    String address_id;
-    String payment_id;
+    String userId;
+    String addressId;
+    String paymentId;
     LocalDateTime orderDateTime;
-    String payment_code;
+    String paymentCode;
     String status;
 }

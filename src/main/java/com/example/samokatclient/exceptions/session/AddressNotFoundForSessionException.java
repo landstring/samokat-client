@@ -1,9 +1,14 @@
 package com.example.samokatclient.exceptions.session;
 
-public class AddressNotFoundForSessionException extends RuntimeException {
+import com.example.samokatclient.exceptions.SamokatClientRuntimeException;
+
+public class AddressNotFoundForSessionException extends SamokatClientRuntimeException {
 
     public AddressNotFoundForSessionException() {
         super();
     }
 
+    public AddressNotFoundForSessionException(String message) {
+        super(message);
+    }
 }

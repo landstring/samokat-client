@@ -1,9 +1,16 @@
 package com.example.samokatclient.exceptions.session;
 
-public class UserIsAlreadyAuthorized extends RuntimeException {
+import com.example.samokatclient.exceptions.SamokatClientRuntimeException;
+
+public class UserIsAlreadyAuthorized extends SamokatClientRuntimeException {
 
     public UserIsAlreadyAuthorized() {
         super();
     }
+
+    public UserIsAlreadyAuthorized(String message) {
+        super(message);
+    }
+
 
 }

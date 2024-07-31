@@ -1,7 +1,7 @@
 package com.example.samokatclient.configuration;
 
-import com.example.samokatclient.DTO.order.NewOrderDto;
-import com.example.samokatclient.DTO.order.NewStatusDto;
+import com.example.samokatclient.DTO.currentOrder.NewOrderDto;
+import com.example.samokatclient.DTO.currentOrder.NewStatusDto;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -91,6 +91,11 @@ public class KafkaConfiguration {
     @Bean
     public NewTopic newStatusTopic() {
         return TopicBuilder.name("newStatus").build();
+    }
+
+    @Bean
+    public NewTopic newDeliveryTopic() {
+        return TopicBuilder.name("deliveryOrder").build();
     }
 
     private Map<String, Object> propertiesConsumerGenerate(Class<?> obj) {

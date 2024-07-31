@@ -11,7 +11,7 @@ public class CategoryMapper {
         return CategoryDto.builder()
                 .id(category.getId())
                 .name(category.getName())
-                .categoryImage_url(category.getImage_url())
+                .categoryImageUrl(category.getImageUrl())
                 .children(category.getChildren().stream().map(this::toDto).toList())
                 .build();
     }

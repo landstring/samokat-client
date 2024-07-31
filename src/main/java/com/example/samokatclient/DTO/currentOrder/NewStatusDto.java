@@ -1,4 +1,4 @@
-package com.example.samokatclient.DTO.order;
+package com.example.samokatclient.DTO.currentOrder;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -9,6 +9,6 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class NewStatusDto {
-    String order_id;
+    String orderId;
     String status;
 }

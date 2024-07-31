@@ -1,6 +1,8 @@
 package com.example.samokatclient.exceptions.order;
 
-public class AddressNotFoundException extends RuntimeException {
+import com.example.samokatclient.exceptions.SamokatClientRuntimeException;
+
+public class AddressNotFoundException extends SamokatClientRuntimeException {
 
     public AddressNotFoundException() {
         super();

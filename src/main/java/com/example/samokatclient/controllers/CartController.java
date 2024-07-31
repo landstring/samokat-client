@@ -1,5 +1,6 @@
 package com.example.samokatclient.controllers;
 
+import com.example.samokatclient.services.CartService;
 import com.example.samokatclient.services.SessionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -14,9 +15,9 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Методы для работы с корзиной")
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/cart")
+@RequestMapping("/api/v1/cart")
 public class CartController {
-    private final SessionService sessionService;
+    private final CartService cartService;
 
     @Operation(
             summary = "Получить состояние корзины",
@@ -27,22 +28,22 @@ public class CartController {
     private ResponseEntity<?> getCart(
             @Parameter(hidden = true)
             @RequestHeader("Authorization") String token) {
-        return new ResponseEntity<>(sessionService.getCart(token), HttpStatus.OK);
+        return new ResponseEntity<>(cartService.getCart(token), HttpStatus.OK);
     }
 
     @Operation(
             summary = "Добавить продукт в корзину",
             description = "Данный метод добавляет продукт в корзину"
     )
-    @GetMapping("/add/{product_id}")
+    @GetMapping("/add/{productId}")
     @SecurityRequirement(name = "api_key")
     private ResponseEntity<?> addToCart(
             @Parameter(hidden = true)
-            @RequestHeader("Authorization") String token,
+            @RequestHeader("Authorization") String sessionToken,
 
             @Parameter(description = "ID продукта")
-            @PathVariable("product_id") Long product_id) {
-        sessionService.addToCart(token, product_id);
+            @PathVariable("productId") Long productId) {
+        cartService.addToCart(sessionToken, productId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -50,15 +51,15 @@ public class CartController {
             summary = "Удалить продукт из корзины",
             description = "Данный метод удаляет продукт из корзины"
     )
-    @GetMapping("/delete/{product_id}")
+    @GetMapping("/delete/{productId}")
     @SecurityRequirement(name = "api_key")
     private ResponseEntity<?> deleteFromCart(
             @Parameter(hidden = true)
-            @RequestHeader("Authorization") String token,
+            @RequestHeader("Authorization") String sessionToken,
 
             @Parameter(description = "ID продукта")
-            @PathVariable("product_id") Long product_id) {
-        sessionService.deleteFromCart(token, product_id);
+            @PathVariable("productId") Long productId) {
+        cartService.deleteFromCart(sessionToken, productId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -70,8 +71,8 @@ public class CartController {
     @SecurityRequirement(name = "api_key")
     private ResponseEntity<?> deleteFromCart(
             @Parameter(hidden = true)
-            @RequestHeader("Authorization") String token) {
-        sessionService.clearCart(token);
+            @RequestHeader("Authorization") String sessionToken) {
+        cartService.clearCart(sessionToken);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

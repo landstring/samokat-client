@@ -13,6 +13,6 @@ import java.util.List;
 public class CategoryDto {
     Long id;
     String name;
-    String categoryImage_url;
+    String categoryImageUrl;
     List<CategoryDto> children;
 }

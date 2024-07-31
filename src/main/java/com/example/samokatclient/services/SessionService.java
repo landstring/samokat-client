@@ -1,153 +1,122 @@
 package com.example.samokatclient.services;
 
-import com.example.samokatclient.DTO.cart.CartDto;
 import com.example.samokatclient.DTO.order.AddressDto;
-import com.example.samokatclient.DTO.order.OrderDto;
 import com.example.samokatclient.DTO.order.PaymentDto;
 import com.example.samokatclient.DTO.session.UserDto;
+import com.example.samokatclient.entities.session.Cart;
+import com.example.samokatclient.entities.session.Session;
+import com.example.samokatclient.entities.user.Address;
+import com.example.samokatclient.entities.user.Payment;
+import com.example.samokatclient.entities.user.User;
+import com.example.samokatclient.exceptions.order.AddressNotFoundException;
+import com.example.samokatclient.exceptions.order.PaymentNotFoundException;
 import com.example.samokatclient.exceptions.session.*;
+import com.example.samokatclient.mappers.AddressMapper;
+import com.example.samokatclient.mappers.PaymentMapper;
 import com.example.samokatclient.mappers.UserMapper;
-import com.example.samokatclient.redis.Session;
+import com.example.samokatclient.repositories.session.SessionRepository;
+import com.example.samokatclient.repositories.user.AddressRepository;
+import com.example.samokatclient.repositories.user.PaymentRepository;
+import com.example.samokatclient.repositories.user.UserRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.HashMap;
 import java.util.UUID;
 
 @Service
 @AllArgsConstructor
 public class SessionService {
-    private final static String HASH_KEY = "Session";
-    private final RedisTemplate<String, Object> redisTemplate;
-    private final CartService cartService;
-    private final UserService userService;
+
+    private final SessionRepository sessionRepository;
+    private final UserRepository userRepository;
+    private final AddressRepository addressRepository;
+    private final PaymentRepository paymentRepository;
     private final UserMapper userMapper;
+    private final AddressMapper addressMapper;
+    private final PaymentMapper paymentMapper;
 
     public String createSession() {
-        String sessionToken = UUID.randomUUID().toString();
+        String sessionToken;
+        do {
+            sessionToken = UUID.randomUUID().toString();
+
+        } while (sessionRepository.existsById(sessionToken));
         Session session = Session.builder()
                 .id(sessionToken)
-                .cartToken(cartService.createCart())
+                .cart(createCart())
                 .build();
-        redisTemplate.opsForHash().put(HASH_KEY, sessionToken, session);
+        sessionRepository.save(session);
         return sessionToken;
-    }
-
-    public UserDto getSessionUser(String sessionToken) {
-        Session session = getSession(sessionToken);
-        if (session.getUser_id() == null) {
-            throw new UserIsNotAuthorizedException();
-        }
-        return userMapper.toDto(userService.getUserById(session.getUser_id()));
     }
 
     public void authorizeUser(String sessionToken, UserDto userDto) {
         Session session = getSession(sessionToken);
-        if (session.getUser_id() != null) {
-            throw new UserIsAlreadyAuthorized();
+        if (!isValidPhoneNumber(userDto.getId())){
+            throw new InvalidPhoneNumberException("Номер телефона некорректный");
         }
-        userService.authorizeUser(userDto);
-        session.setUser_id(userDto.getPhone_number());
-        redisTemplate.opsForHash().put(HASH_KEY, sessionToken, session);
-    }
-
-    public void setAuthorizedUserName(String sessionToken, UserDto userDto) {
-        Session session = getSession(sessionToken);
-        if (session.getUser_id() == null) {
-            throw new UserIsNotAuthorizedException();
+        if (session.getUser() != null) {
+            throw new UserIsAlreadyAuthorized("Пользователь уже авторизован");
         }
-        userService.setUserName(session.getUser_id(), userDto.getName());
+        User user = userRepository.findById(userDto.getId())
+                .orElseGet(() -> userMapper.fromDto(userDto));
+        session.setUser(user);
+        sessionRepository.save(session);
     }
 
     public AddressDto getAddress(String sessionToken) {
         Session session = getSession(sessionToken);
-        String address_id = session.getAddress_id();
-        if (address_id == null) {
-            throw new AddressNotFoundForSessionException();
+        Address address = session.getAddress();
+        if (address == null) {
+            throw new AddressNotFoundForSessionException("Адрес не указан для данной сессии");
         }
-        return userService.getAddress(address_id);
+        return addressMapper.toDto(address);
     }
 
     public PaymentDto getPayment(String sessionToken) {
         Session session = getSession(sessionToken);
-        String payment_id = session.getPayment_id();
-        if (payment_id == null) {
-            throw new PaymentNotFoundForSessionException();
+        Payment payment = session.getPayment();
+        if (payment == null) {
+            throw new PaymentNotFoundForSessionException("Способ оплаты не указан для данной сессии");
         }
-        return userService.getPayment(payment_id);
+        return paymentMapper.toDto(payment);
     }
 
-    public void setAddress(String sessionToken, String address_id) {
+    public void setAddress(String sessionToken, String addressId) {
         Session session = getSession(sessionToken);
-        session.setAddress_id(address_id);
-        redisTemplate.opsForHash().put(HASH_KEY, sessionToken, session);
+        Address address = addressRepository.findById(addressId).orElseThrow(
+                () -> new AddressNotFoundException("Адрес не найден")
+        );
+        session.setAddress(address);
+        sessionRepository.save(session);
     }
 
-    public void setPayment(String sessionToken, String payment_id) {
+    public void setPayment(String sessionToken, String paymentId) {
         Session session = getSession(sessionToken);
-        session.setPayment_id(payment_id);
-        putSession(session);
+        Payment payment = paymentRepository.findById(paymentId).orElseThrow(
+                () -> new PaymentNotFoundException("Способ оплаты не найден")
+        );
+        session.setPayment(payment);
+        sessionRepository.save(session);
     }
 
-    public List<OrderDto> getUserOrders(String sessionToken) {
-        return userService.getUserOrders(getSessionUser(sessionToken).getPhone_number());
-    }
-
-    public OrderDto getUserOrderById(String sessionToken, String order_id) {
-        return userService.getOrderById(getSessionUser(sessionToken).getPhone_number(), order_id);
-    }
-
-    public List<OrderDto> getUserCurrentOrders(String sessionToken) {
-        return userService.getUserCurrentOrders(getSessionUser(sessionToken).getPhone_number());
-    }
-
-    public List<AddressDto> getUserAddresses(String sessionToken) {
-        return userService.getUserAddresses(this.getSessionUser(sessionToken).getPhone_number());
-    }
-
-    public List<PaymentDto> getUserPayments(String sessionToken) {
-        return userService.getUserPayments(this.getSessionUser(sessionToken).getPhone_number());
-    }
-
-    public void createNewAddress(String sessionToken, AddressDto addressDto) {
-        userService.createNewAddress(this.getSessionUser(sessionToken).getPhone_number(), addressDto);
-    }
-
-    public void createNewPayment(String sessionToken, PaymentDto paymentDto) {
-        userService.createNewPayment(this.getSessionUser(sessionToken).getPhone_number(), paymentDto);
-    }
-
-    public CartDto getCart(String sessionToken) {
-        Session session = getSession(sessionToken);
-        return cartService.getCartDto(session.getCartToken());
-    }
-
-    public void addToCart(String sessionToken, Long product_id) {
-        Session session = getSession(sessionToken);
-        cartService.addToCart(session.getCartToken(), product_id);
-    }
-
-    public void deleteFromCart(String sessionToken, Long product_id) {
-        Session session = getSession(sessionToken);
-        cartService.deleteFromCart(session.getCartToken(), product_id);
-    }
-
-    public void clearCart(String sessionToken) {
-        Session session = getSession(sessionToken);
-        session.setCartToken(cartService.deleteCart(session.getCartToken()));
-        putSession(session);
+    private Cart createCart() {
+        return Cart.builder()
+                .products(new HashMap<>())
+                .build();
     }
 
     private Session getSession(String sessionToken) {
-        Session session = (Session) redisTemplate.opsForHash().get(HASH_KEY, sessionToken);
-        if (session == null) {
-            throw new InvalidTokenException();
-        }
-        return session;
+        return sessionRepository.findById(sessionToken).orElseThrow(
+                () -> new InvalidTokenException("Неверный ключ сессии")
+        );
     }
 
-    private void putSession(Session session) {
-        redisTemplate.opsForHash().put(HASH_KEY, session.getId(), session);
+    private boolean isValidPhoneNumber(String phoneNumber) {
+        if (phoneNumber == null) {
+            return false;
+        }
+        String regex = "^\\+7\\s\\(\\d{3}\\)\\s\\d{3}-\\d{2}-\\d{2}$";
+        return phoneNumber.matches(regex);
     }
 }

@@ -2,8 +2,7 @@ package com.example.samokatclient.controllers;
 
 import com.example.samokatclient.DTO.order.AddressDto;
 import com.example.samokatclient.DTO.order.PaymentDto;
-import com.example.samokatclient.DTO.session.UserDto;
-import com.example.samokatclient.services.SessionService;
+import com.example.samokatclient.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -17,9 +16,9 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/user")
+@RequestMapping("/api/v1/user")
 public class UserController {
-    private final SessionService sessionService;
+    private final UserService userService;
 
     @Operation(
             summary = "Получить данные пользователя",
@@ -29,8 +28,8 @@ public class UserController {
     @SecurityRequirement(name = "api_key")
     public ResponseEntity<?> getUser(
             @Parameter(hidden = true)
-            @RequestHeader("Authorization") String token) {
-        return new ResponseEntity<>(sessionService.getSessionUser(token), HttpStatus.OK);
+            @RequestHeader("Authorization") String sessionToken) {
+        return new ResponseEntity<>(userService.getSessionUser(sessionToken), HttpStatus.OK);
     }
 
     @Operation(
@@ -41,8 +40,8 @@ public class UserController {
     @SecurityRequirement(name = "api_key")
     public ResponseEntity<?> getUserOrders(
             @Parameter(hidden = true)
-            @RequestHeader("Authorization") String token) {
-        return new ResponseEntity<>(sessionService.getUserOrders(token), HttpStatus.OK);
+            @RequestHeader("Authorization") String sessionToken) {
+        return new ResponseEntity<>(userService.getUserOrders(sessionToken), HttpStatus.OK);
     }
 
     @Operation(
@@ -53,11 +52,11 @@ public class UserController {
     @SecurityRequirement(name = "api_key")
     public ResponseEntity<?> getUserOrderById(
             @Parameter(hidden = true)
-            @RequestHeader("Authorization") String token,
+            @RequestHeader("Authorization") String sessionToken,
 
             @Parameter(description = "id заказа")
             @PathVariable(value = "orderId") String orderId) {
-        return new ResponseEntity<>(sessionService.getUserOrderById(token, orderId), HttpStatus.OK);
+        return new ResponseEntity<>(userService.getOrderById(sessionToken, orderId), HttpStatus.OK);
     }
 
     @Operation(
@@ -68,8 +67,24 @@ public class UserController {
     @SecurityRequirement(name = "api_key")
     public ResponseEntity<?> getUserAddresses(
             @Parameter(hidden = true)
-            @RequestHeader("Authorization") String token) {
-        return new ResponseEntity<>(sessionService.getUserAddresses(token), HttpStatus.OK);
+            @RequestHeader("Authorization") String sessionToken) {
+        return new ResponseEntity<>(userService.getUserAddresses(sessionToken), HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Получить адрес пользователя",
+            description = "Данный метод выдаст адрес пользователя по ID для данного пользователя"
+    )
+    @GetMapping("/addresses/{address_id}")
+    @SecurityRequirement(name = "api_key")
+    public ResponseEntity<?> getUserAddress(
+            @Parameter(hidden = true)
+            @RequestHeader("Authorization") String sessionToken,
+
+            @Parameter(description = "ID Адреса")
+            @PathVariable("address_id") String addressId
+    ) {
+        return new ResponseEntity<>(userService.getUserAddress(sessionToken, addressId), HttpStatus.OK);
     }
 
     @Operation(
@@ -80,23 +95,24 @@ public class UserController {
     @SecurityRequirement(name = "api_key")
     public ResponseEntity<?> getUserPayments(
             @Parameter(hidden = true)
-            @RequestHeader("Authorization") String token) {
-        return new ResponseEntity<>(sessionService.getUserPayments(token), HttpStatus.OK);
+            @RequestHeader("Authorization") String sessionToken) {
+        return new ResponseEntity<>(userService.getUserPayments(sessionToken), HttpStatus.OK);
     }
 
     @Operation(
-            summary = "Задать имя пользователю",
-            description = "Поле номера телефона можно оставить пустым"
+            summary = "Получить адрес пользователя",
+            description = "Данный метод выдаст адрес пользователя по ID для данного пользователя"
     )
-    @PostMapping("/set-name")
+    @GetMapping("/payments/{payment_id}")
     @SecurityRequirement(name = "api_key")
-    public ResponseEntity<?> setName(
+    public ResponseEntity<?> getUserPayment(
             @Parameter(hidden = true)
-            @RequestHeader("Authorization") String token,
+            @RequestHeader("Authorization") String sessionToken,
 
-            @RequestBody UserDto userDto) {
-        sessionService.setAuthorizedUserName(token, userDto);
-        return new ResponseEntity<>(HttpStatus.OK);
+            @Parameter(description =  "ID способа оплаты")
+            @PathVariable("payment_id") String paymentId
+    ) {
+        return new ResponseEntity<>(userService.getUserPayment(sessionToken, paymentId), HttpStatus.OK);
     }
 
     @Operation(
@@ -107,10 +123,10 @@ public class UserController {
     @SecurityRequirement(name = "api_key")
     public ResponseEntity<?> createNewAddress(
             @Parameter(hidden = true)
-            @RequestHeader("Authorization") String token,
+            @RequestHeader("Authorization") String sessionToken,
 
             @RequestBody AddressDto addressDto) {
-        sessionService.createNewAddress(token, addressDto);
+        userService.createNewAddress(sessionToken, addressDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -122,10 +138,10 @@ public class UserController {
     @SecurityRequirement(name = "api_key")
     public ResponseEntity<?> createNewAddress(
             @Parameter(hidden = true)
-            @RequestHeader("Authorization") String token,
+            @RequestHeader("Authorization") String sessionToken,
 
             @RequestBody PaymentDto paymentDto) {
-        sessionService.createNewPayment(token, paymentDto);
+        userService.createNewPayment(sessionToken, paymentDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

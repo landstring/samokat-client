@@ -1,22 +1,22 @@
 package com.example.samokatclient.mappers;
 
 import com.example.samokatclient.DTO.session.UserDto;
-import com.example.samokatclient.entities.user.SamokatUser;
+import com.example.samokatclient.entities.user.User;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UserMapper {
-    public UserDto toDto(SamokatUser samokatUser) {
+    public UserDto toDto(User user) {
         return UserDto.builder()
-                .name(samokatUser.getName())
-                .phone_number(samokatUser.getPhone())
+                .name(user.getName())
+                .id(user.getId())
                 .build();
     }
 
-    public SamokatUser fromDto(UserDto userDto) {
-        return SamokatUser.builder()
+    public User fromDto(UserDto userDto) {
+        return User.builder()
                 .name(userDto.getName())
-                .phone(userDto.getPhone_number())
+                .id(userDto.getId())
                 .build();
     }
 }

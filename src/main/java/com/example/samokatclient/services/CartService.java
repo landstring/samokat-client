@@ -2,99 +2,101 @@ package com.example.samokatclient.services;
 
 import com.example.samokatclient.DTO.cart.CartDto;
 import com.example.samokatclient.entities.product.Product;
-import com.example.samokatclient.exceptions.cart.CartNotFoundException;
+import com.example.samokatclient.entities.session.Cart;
+import com.example.samokatclient.entities.session.CartItem;
+import com.example.samokatclient.entities.session.Session;
 import com.example.samokatclient.exceptions.cart.ProductNotFoundInCartException;
 import com.example.samokatclient.exceptions.product.ProductNotFoundException;
+import com.example.samokatclient.exceptions.session.InvalidTokenException;
 import com.example.samokatclient.mappers.CartMapper;
-import com.example.samokatclient.redis.Cart;
 import com.example.samokatclient.repositories.product.ProductRepository;
+import com.example.samokatclient.repositories.session.SessionRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @AllArgsConstructor
 public class CartService {
-    private final static String HASH_KEY = "Cart";
-    private final RedisTemplate<String, Object> redisTemplate;
+
+    private final SessionRepository sessionRepository;
     private final CartMapper cartMapper;
     private final ProductRepository productRepository;
 
-    public String createCart() {
-        String id = UUID.randomUUID().toString();
-        Cart cart = Cart.builder()
-                .id(id)
-                .products(new HashMap<>())
-                .build();
-        putCart(cart);
-        return id;
+    public CartDto getCart(String sessionToken) {
+        Session session = getSession(sessionToken);
+        return cartMapper.cartToDto(session.getCart());
     }
 
-    public CartDto getCartDto(String token) {
-        Cart cart = getCart(token);
-        return cartMapper.cartToDto(cart);
+    public void addToCart(String sessionToken, Long productId) {
+        Session session = getSession(sessionToken);
+        Product product = productRepository.findById(productId).orElseThrow(
+                () -> new ProductNotFoundException("Такого продукта не существует")
+        );
+        Cart cart = addToCart(session.getCart(), product);
+        session.setCart(cart);
+        sessionRepository.save(session);
     }
 
-    public void addToCart(String token, Long productId) {
-        Cart cart = getCart(token);
-        Optional<Product> optionalProduct = productRepository.findById(productId);
-        if (optionalProduct.isPresent()) {
-            addToCart(cart, productId);
-            putCart(cart);
+    public void deleteFromCart(String sessionToken, Long productId) {
+        Session session = getSession(sessionToken);
+        Product product = productRepository.findById(productId).orElseThrow(
+                () -> new ProductNotFoundException("Такого продукта не существует")
+        );
+        Cart cart = deleteFromCart(session.getCart(), product);
+        session.setCart(cart);
+        sessionRepository.save(session);
+    }
+
+    public void clearCart(String sessionToken) {
+        Session session = getSession(sessionToken);
+        session.setCart(Cart.builder()
+                .products(new HashMap<Long, CartItem>())
+                .build());
+        sessionRepository.save(session);
+    }
+
+    private Cart addToCart(Cart cart, Product product) {
+        Map<Long, CartItem> products = cart.getProducts();
+        if (products.containsKey(product.getId())) {
+            CartItem cartItem = products.get(product.getId());
+            cartItem.setCount(cartItem.getCount() + 1);
+            products.put(product.getId(), cartItem);
         } else {
-            throw new ProductNotFoundException();
+            products.put(
+                    product.getId(),
+                    CartItem.builder()
+                            .product(product)
+                            .count(1)
+                            .build());
         }
+        cart.setProducts(products);
+        return cart;
     }
 
-    public void deleteFromCart(String token, Long productId) {
-        Cart cart = getCart(token);
-        deleteFromCart(cart, productId);
-        putCart(cart);
-    }
-
-    public String deleteCart(String token) {
-        getCart(token);                                     //проверка существования корзины
-        redisTemplate.opsForHash().delete(HASH_KEY, token);
-        return createCart();
-    }
-
-    private Cart getCart(String token) {
-        Cart cart = (Cart) redisTemplate.opsForHash().get(HASH_KEY, token);
-        if (cart == null) {
-            throw new CartNotFoundException();
-        } else {
-            return cart;
-        }
-    }
-
-    private void putCart(Cart cart) {
-        redisTemplate.opsForHash().put(HASH_KEY, cart.getId(), cart);
-    }
-
-    private void addToCart(Cart cart, Long productId) {
-        Map<Long, Integer> products = cart.getProducts();
-        if (products.containsKey(productId)) {
-            products.put(productId, products.get(productId) + 1);
-        } else {
-            products.put(productId, 1);
-        }
-    }
-
-    private void deleteFromCart(Cart cart, Long productId) {
-        Map<Long, Integer> products = cart.getProducts();
-        if (products.containsKey(productId)) {
-            if (products.get(productId) == 1) {
-                products.remove(productId);
+    private Cart deleteFromCart(Cart cart, Product product) {
+        Map<Long, CartItem> products = cart.getProducts();
+        if (products.containsKey(product.getId())) {
+            CartItem cartItem = products.get(product.getId());
+            if (cartItem.getCount() == 1) {
+                products.remove(product.getId());
             } else {
-                products.put(productId, products.get(productId) - 1);
+                cartItem.setCount(cartItem.getCount() - 1);
+                products.put(product.getId(), cartItem);
             }
         } else {
-            throw new ProductNotFoundInCartException();
+            throw new ProductNotFoundInCartException("Такого продукта нет в корзине");
         }
+        cart.setProducts(products);
+        return cart;
+    }
+
+    private Session getSession(String sessionToken) {
+        return sessionRepository.findById(sessionToken).orElseThrow(
+                () -> new InvalidTokenException("Неверный ключ сессии")
+        );
     }
 }

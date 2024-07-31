@@ -1,5 +1,6 @@
 package com.example.samokatclient.DTO.payment;
 
+import com.example.samokatclient.DTO.order.PaymentDto;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -9,9 +10,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PaymentInfoDto {
-    String card_number;
-    String expiration_date;
-    Integer cvc;
+    PaymentDto paymentDto;
     Long totalPrice;
-    String url;
+    String uri;
 }

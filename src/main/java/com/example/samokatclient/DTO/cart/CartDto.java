@@ -11,6 +11,6 @@ import java.util.List;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CartDto {
-    List<CartItem> cartItemList;
+    List<CartItemDto> cartItemDtoList;
     Long totalPrice;
 }

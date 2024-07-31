@@ -6,12 +6,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Entity
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Product {
+public class Product implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,8 +28,8 @@ public class Product {
     @Column(nullable = false)
     private Long price;
 
-    @Column(nullable = false)
-    private String image_url;
+    @Column(name = "image_url", nullable = false)
+    private String imageUrl;
 
     @ManyToOne
     @JoinColumn(name = "category_id")

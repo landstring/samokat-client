@@ -1,9 +1,14 @@
 package com.example.samokatclient.exceptions.cart;
 
-public class ProductNotFoundInCartException extends RuntimeException {
+import com.example.samokatclient.exceptions.SamokatClientRuntimeException;
+
+public class ProductNotFoundInCartException extends SamokatClientRuntimeException {
 
     public ProductNotFoundInCartException() {
         super();
     }
 
+    public ProductNotFoundInCartException(String message) {
+        super(message);
+    }
 }

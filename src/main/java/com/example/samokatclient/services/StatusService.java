@@ -1,6 +1,9 @@
 package com.example.samokatclient.services;
 
-import com.example.samokatclient.DTO.order.NewStatusDto;
+import com.example.samokatclient.DTO.currentOrder.NewStatusDto;
+import com.example.samokatclient.entities.currentOrder.CurrentOrderClient;
+import com.example.samokatclient.exceptions.order.CurrentOrderNotFoundException;
+import com.example.samokatclient.repositories.currentOrder.CurrentOrderClientRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -9,14 +12,31 @@ import java.util.Objects;
 @Service
 @AllArgsConstructor
 public class StatusService {
-    private final CurrentOrderService currentOrderService;
+    private final CurrentOrderClientRepository currentOrderClientRepository;
 
     public void newStatusHandler(NewStatusDto newStatusDto) {
         if (Objects.equals(newStatusDto.getStatus(), "CANCELED")) {
-            currentOrderService.orderCanceler(newStatusDto.getOrder_id());
+            cancelOrder(newStatusDto.getOrderId());
         } else {
-            currentOrderService.setNewStatus(newStatusDto);
+            setStatus(newStatusDto);
         }
+    }
+
+    private void setStatus(NewStatusDto newStatusDto){
+        CurrentOrderClient currentOrderClient = getCurrentOrderClient(newStatusDto.getOrderId());
+        currentOrderClient.setStatus(newStatusDto.getStatus());
+        currentOrderClientRepository.save(currentOrderClient);
+    }
+
+    private void cancelOrder(String orderId){
+        CurrentOrderClient currentOrderClient = getCurrentOrderClient(orderId);
+        currentOrderClientRepository.delete(currentOrderClient);
+    }
+
+    private CurrentOrderClient getCurrentOrderClient(String orderId){
+        return currentOrderClientRepository.findById(orderId).orElseThrow(
+                () -> new CurrentOrderNotFoundException("Такого текущего заказа не существует")
+        );
     }
 
 }

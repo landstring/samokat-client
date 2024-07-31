@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Entity
@@ -13,7 +14,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Category {
+public class Category implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,8 +23,8 @@ public class Category {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
-    private String image_url;
+    @Column(name = "image_url", nullable = false)
+    private String imageUrl;
 
     @ManyToOne
     @JoinColumn(name = "parent_id")

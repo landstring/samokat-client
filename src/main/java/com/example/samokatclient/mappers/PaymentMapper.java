@@ -9,10 +9,9 @@ public class PaymentMapper {
 
     public Payment fromDto(PaymentDto paymentDto) {
         return Payment.builder()
-                .id(paymentDto.getId())
                 .cvc(paymentDto.getCvc())
-                .card_number(paymentDto.getCard_number())
-                .expiration_date(paymentDto.getExpiration_date())
+                .cardNumber(paymentDto.getCardNumber())
+                .expirationDate(paymentDto.getExpirationDate())
                 .build();
     }
 
@@ -20,8 +19,8 @@ public class PaymentMapper {
         return PaymentDto.builder()
                 .id(payment.getId())
                 .cvc(payment.getCvc())
-                .card_number(payment.getCard_number())
-                .expiration_date(payment.getExpiration_date())
+                .cardNumber(payment.getCardNumber())
+                .expirationDate(payment.getExpirationDate())
                 .build();
     }
 }

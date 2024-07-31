@@ -1,7 +1,10 @@
 package com.example.samokatclient.exceptions.cart;
 
-public class CartIsEmptyException extends RuntimeException {
+import com.example.samokatclient.exceptions.SamokatClientRuntimeException;
+
+public class CartIsEmptyException extends SamokatClientRuntimeException {
     public CartIsEmptyException() {
+        super();
     }
 
     public CartIsEmptyException(String message) {
