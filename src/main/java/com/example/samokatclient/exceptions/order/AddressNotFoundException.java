@@ -4,10 +4,6 @@ import com.example.samokatclient.exceptions.SamokatClientRuntimeException;
 
 public class AddressNotFoundException extends SamokatClientRuntimeException {
 
-    public AddressNotFoundException() {
-        super();
-    }
-
     public AddressNotFoundException(String message) {
         super(message);
     }

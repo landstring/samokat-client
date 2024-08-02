@@ -9,7 +9,7 @@ import java.net.http.HttpClient;
 public class PaymentConfiguration {
 
     @Bean
-    HttpClient paymentHttpClient(){
+    HttpClient paymentHttpClient() {
         return HttpClient.newHttpClient();
     }
 }

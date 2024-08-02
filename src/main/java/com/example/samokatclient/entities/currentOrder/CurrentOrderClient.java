@@ -3,6 +3,7 @@ package com.example.samokatclient.entities.currentOrder;
 import com.example.samokatclient.entities.session.Cart;
 import com.example.samokatclient.entities.user.Address;
 import com.example.samokatclient.entities.user.Payment;
+import com.example.samokatclient.enums.CurrentOrderStatus;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.redis.core.RedisHash;
@@ -26,5 +27,5 @@ public class CurrentOrderClient implements Serializable {
     Payment payment;
     LocalDateTime orderDateTime;
     String paymentCode;
-    String status;
+    CurrentOrderStatus status;
 }

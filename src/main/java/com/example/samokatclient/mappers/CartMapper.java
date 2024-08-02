@@ -2,6 +2,7 @@ package com.example.samokatclient.mappers;
 
 import com.example.samokatclient.DTO.cart.CartDto;
 import com.example.samokatclient.DTO.cart.CartItemDto;
+import com.example.samokatclient.DTO.cart.OrderCartItemDto;
 import com.example.samokatclient.entities.user.OrderCartItem;
 import com.example.samokatclient.DTO.product.ProductDto;
 import com.example.samokatclient.entities.session.Cart;
@@ -55,11 +56,11 @@ public class CartMapper {
                 .build();
     }
 
-    public List<OrderCartItem> toListOrderCartItem(CartDto cartDto) {
-        List<OrderCartItem> orderCartItemList = new ArrayList<>();
+    public List<OrderCartItemDto> toListOrderCartItem(CartDto cartDto) {
+        List<OrderCartItemDto> orderCartItemList = new ArrayList<>();
         for (CartItemDto cartItemDto : cartDto.getCartItemDtoList()) {
             orderCartItemList.add(
-                    OrderCartItem.builder()
+                    OrderCartItemDto.builder()
                             .productId(cartItemDto.getProductDto().getId())
                             .count(cartItemDto.getCount())
                             .build());

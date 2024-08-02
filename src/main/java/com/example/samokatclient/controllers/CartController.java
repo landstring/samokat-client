@@ -1,7 +1,6 @@
 package com.example.samokatclient.controllers;
 
 import com.example.samokatclient.services.CartService;
-import com.example.samokatclient.services.SessionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;

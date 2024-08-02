@@ -109,7 +109,7 @@ public class UserController {
             @Parameter(hidden = true)
             @RequestHeader("Authorization") String sessionToken,
 
-            @Parameter(description =  "ID способа оплаты")
+            @Parameter(description = "ID способа оплаты")
             @PathVariable("payment_id") String paymentId
     ) {
         return new ResponseEntity<>(userService.getUserPayment(sessionToken, paymentId), HttpStatus.OK);

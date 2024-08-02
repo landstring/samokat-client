@@ -4,11 +4,8 @@ import com.example.samokatclient.exceptions.SamokatClientRuntimeException;
 
 public class BadConnectionToPaymentException extends SamokatClientRuntimeException {
 
-    public BadConnectionToPaymentException() {
-        super();
-    }
-
     public BadConnectionToPaymentException(String message) {
         super(message);
     }
+
 }

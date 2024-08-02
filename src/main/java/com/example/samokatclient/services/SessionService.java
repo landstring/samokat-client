@@ -22,6 +22,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -52,11 +53,17 @@ public class SessionService {
 
     public void authorizeUser(String sessionToken, UserDto userDto) {
         Session session = getSession(sessionToken);
-        if (!isValidPhoneNumber(userDto.getId())){
+        if (!isValidPhoneNumber(userDto.getId())) {
             throw new InvalidPhoneNumberException("Номер телефона некорректный");
         }
         if (session.getUser() != null) {
             throw new UserIsAlreadyAuthorized("Пользователь уже авторизован");
+        }
+        Optional<User> optionalUser = userRepository.findById(userDto.getId());
+        if (optionalUser.isPresent()){
+            User user = optionalUser.get();
+        } else{
+            User user = userMapper.fromDto(userDto);
         }
         User user = userRepository.findById(userDto.getId())
                 .orElseGet(() -> userMapper.fromDto(userDto));

@@ -8,5 +8,6 @@ import java.util.Optional;
 
 public interface PaymentRepository extends MongoRepository<Payment, String> {
     Optional<Payment> findByIdAndUserId(String id, String userId);
+
     List<Payment> findByUserId(String userId);
 }

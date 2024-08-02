@@ -115,7 +115,7 @@ public class UserService {
         String paymentId;
         do {
             paymentId = UUID.randomUUID().toString();
-        } while(paymentRepository.existsById(paymentId));
+        } while (paymentRepository.existsById(paymentId));
         User user = getSessionUser(sessionToken);
         Payment payment = paymentMapper.fromDto(paymentDto);
         payment.setId(paymentId);

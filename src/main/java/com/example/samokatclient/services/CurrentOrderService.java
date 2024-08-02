@@ -10,6 +10,8 @@ import com.example.samokatclient.entities.session.Cart;
 import com.example.samokatclient.entities.session.CartItem;
 import com.example.samokatclient.entities.session.Session;
 import com.example.samokatclient.entities.user.Order;
+import com.example.samokatclient.enums.CurrentOrderStatus;
+import com.example.samokatclient.enums.OrderStatus;
 import com.example.samokatclient.exceptions.cart.CartIsEmptyException;
 import com.example.samokatclient.exceptions.order.CurrentOrderNotFoundException;
 import com.example.samokatclient.exceptions.payment.BadConnectionToPaymentException;
@@ -71,20 +73,25 @@ public class CurrentOrderService {
         CurrentOrderClient currentOrderClient = currentOrderClientRepository.findById(orderId).orElseThrow(
                 () -> new CurrentOrderNotFoundException("Текущий заказ не найден")
         );
-        if (!Objects.equals(currentOrderClient.getUserId(), session.getUser().getId())){
+        if (!Objects.equals(currentOrderClient.getUserId(), session.getUser().getId())) {
             throw new CurrentOrderNotFoundException("Текущий заказ не найден");
         }
         NewStatusDto newStatusDto = NewStatusDto.builder()
                 .orderId(currentOrderClient.getId())
-                .status("CANCELED")
+                .status(CurrentOrderStatus.CANCELED)
                 .build();
         statusKafkaTemplate.send("newStatus", newStatusDto);
     }
 
     public List<CurrentOrderClientDto> getCurrentOrders(String sessionToken) {
         Session session = getSession(sessionToken);
+        List<String> ordersId = orderRepository
+                .findAllByUserIdAndStatus(session.getUser().getId(), OrderStatus.PROCESSING)
+                .stream()
+                .map(Order::getId)
+                .toList();
         return currentOrderClientRepository
-                .findCurrentOrderClientsByUserId(session.getUser().getId())
+                .findAllCurrentOrderClientsByUserId(ordersId)
                 .stream()
                 .map(currentOrderClientMapper::toDto)
                 .toList();
@@ -112,6 +119,9 @@ public class CurrentOrderService {
                     .POST(HttpRequest.BodyPublishers.ofString(json))
                     .build();
             HttpResponse<String> response = paymentHttpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200){
+                throw new BadConnectionToPaymentException("Ошибка на стороне платёжного провайдера");
+            }
             return response.body();
         } catch (Exception ex) {
             throw new BadConnectionToPaymentException("Ошибка на стороне платёжного провайдера");
@@ -161,7 +171,7 @@ public class CurrentOrderService {
                 .paymentId(session.getPayment().getId())
                 .orderDateTime(orderDateTime)
                 .paymentCode(paymentCode)
-                .status("CREATED")
+                .status(CurrentOrderStatus.CREATED)
                 .build();
     }
 
@@ -177,7 +187,7 @@ public class CurrentOrderService {
                 .payment(session.getPayment())
                 .orderDateTime(orderDateTime)
                 .paymentCode(paymentCode)
-                .status("CREATED")
+                .status(CurrentOrderStatus.CREATED)
                 .build();
         currentOrderClientRepository.save(currentOrderClient);
     }

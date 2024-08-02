@@ -5,19 +5,14 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.List;
-
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@JsonPropertyOrder({"cart", "total_price"})
-public class CartDto {
-
-    @JsonProperty("cart")
-    List<CartItemDto> cartItemDtoList;
-
-    @JsonProperty("total_price")
-    Long totalPrice;
+@JsonPropertyOrder({"product_id", "count"})
+public class OrderCartItemDto {
+    @JsonProperty("product_id")
+    Long productId;
+    Integer count;
 }

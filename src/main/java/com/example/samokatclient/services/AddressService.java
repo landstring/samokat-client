@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 public class AddressService {
     private final AddressRepository addressRepository;
 
-    public Address getAddressById(String addressId){
+    public Address getAddressById(String addressId) {
         return addressRepository.findById(addressId).orElseThrow(
                 () -> new AddressNotFoundException("Такого адреса не существует")
         );

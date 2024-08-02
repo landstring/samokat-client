@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 public class PaymentService {
     private final PaymentRepository paymentRepository;
 
-    public Payment getPaymentById(String paymentId){
+    public Payment getPaymentById(String paymentId) {
         return paymentRepository.findById(paymentId).orElseThrow(
                 () -> new PaymentNotFoundException("Такого способа оплаты не существует")
         );

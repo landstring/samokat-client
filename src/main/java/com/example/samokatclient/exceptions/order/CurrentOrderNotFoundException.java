@@ -4,11 +4,8 @@ import com.example.samokatclient.exceptions.SamokatClientRuntimeException;
 
 public class CurrentOrderNotFoundException extends SamokatClientRuntimeException {
 
-    public CurrentOrderNotFoundException() {
-        super();
-    }
-
     public CurrentOrderNotFoundException(String message) {
         super(message);
     }
+
 }

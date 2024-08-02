@@ -12,7 +12,6 @@ import com.example.samokatclient.mappers.CartMapper;
 import com.example.samokatclient.repositories.product.ProductRepository;
 import com.example.samokatclient.repositories.session.SessionRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;

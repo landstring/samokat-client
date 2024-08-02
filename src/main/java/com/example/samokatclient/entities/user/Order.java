@@ -1,10 +1,14 @@
 package com.example.samokatclient.entities.user;
 
+import com.example.samokatclient.enums.OrderStatus;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -28,5 +32,8 @@ public class Order implements Serializable {
     String paymentId;
 
     LocalDateTime orderDateTime;
-    String status;
+
+    @Field
+    @Enumerated(EnumType.STRING)
+    OrderStatus status;
 }
