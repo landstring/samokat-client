@@ -1,5 +1,6 @@
 package com.example.samokatclient.controllers;
 
+import com.example.samokatclient.DTO.cart.CartDto;
 import com.example.samokatclient.services.CartService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -7,7 +8,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin
@@ -24,10 +24,11 @@ public class CartController {
     )
     @GetMapping("/")
     @SecurityRequirement(name = "api_key")
-    private ResponseEntity<?> getCart(
+    @ResponseStatus(HttpStatus.OK)
+    private CartDto getCart(
             @Parameter(hidden = true)
             @RequestHeader("Authorization") String token) {
-        return new ResponseEntity<>(cartService.getCart(token), HttpStatus.OK);
+        return cartService.getCart(token);
     }
 
     @Operation(
@@ -36,14 +37,14 @@ public class CartController {
     )
     @GetMapping("/add/{productId}")
     @SecurityRequirement(name = "api_key")
-    private ResponseEntity<?> addToCart(
+    @ResponseStatus(HttpStatus.OK)
+    private void addToCart(
             @Parameter(hidden = true)
             @RequestHeader("Authorization") String sessionToken,
 
             @Parameter(description = "ID продукта")
             @PathVariable("productId") Long productId) {
         cartService.addToCart(sessionToken, productId);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Operation(
@@ -52,14 +53,14 @@ public class CartController {
     )
     @GetMapping("/delete/{productId}")
     @SecurityRequirement(name = "api_key")
-    private ResponseEntity<?> deleteFromCart(
+    @ResponseStatus(HttpStatus.OK)
+    private void deleteFromCart(
             @Parameter(hidden = true)
             @RequestHeader("Authorization") String sessionToken,
 
             @Parameter(description = "ID продукта")
             @PathVariable("productId") Long productId) {
         cartService.deleteFromCart(sessionToken, productId);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Operation(
@@ -68,10 +69,10 @@ public class CartController {
     )
     @GetMapping("/clear")
     @SecurityRequirement(name = "api_key")
-    private ResponseEntity<?> deleteFromCart(
+    @ResponseStatus(HttpStatus.OK)
+    private void deleteFromCart(
             @Parameter(hidden = true)
             @RequestHeader("Authorization") String sessionToken) {
         cartService.clearCart(sessionToken);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

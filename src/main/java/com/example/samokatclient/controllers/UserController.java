@@ -1,7 +1,9 @@
 package com.example.samokatclient.controllers;
 
 import com.example.samokatclient.DTO.order.AddressDto;
+import com.example.samokatclient.DTO.order.OrderDto;
 import com.example.samokatclient.DTO.order.PaymentDto;
+import com.example.samokatclient.DTO.session.UserDto;
 import com.example.samokatclient.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -11,6 +13,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Tag(name = "Методы для работы с пользовательскими данными")
 @CrossOrigin
@@ -26,10 +30,11 @@ public class UserController {
     )
     @GetMapping("/")
     @SecurityRequirement(name = "api_key")
-    public ResponseEntity<?> getUser(
+    @ResponseStatus(HttpStatus.OK)
+    public UserDto getUser(
             @Parameter(hidden = true)
             @RequestHeader("Authorization") String sessionToken) {
-        return new ResponseEntity<>(userService.getSessionUser(sessionToken), HttpStatus.OK);
+        return userService.getSessionUser(sessionToken);
     }
 
     @Operation(
@@ -38,10 +43,11 @@ public class UserController {
     )
     @GetMapping("/orders")
     @SecurityRequirement(name = "api_key")
-    public ResponseEntity<?> getUserOrders(
+    @ResponseStatus(HttpStatus.OK)
+    public List<OrderDto> getUserOrders(
             @Parameter(hidden = true)
             @RequestHeader("Authorization") String sessionToken) {
-        return new ResponseEntity<>(userService.getUserOrders(sessionToken), HttpStatus.OK);
+        return userService.getUserOrders(sessionToken);
     }
 
     @Operation(
@@ -50,13 +56,14 @@ public class UserController {
     )
     @GetMapping("/orders/{orderId}")
     @SecurityRequirement(name = "api_key")
-    public ResponseEntity<?> getUserOrderById(
+    @ResponseStatus(HttpStatus.OK)
+    public OrderDto getUserOrderById(
             @Parameter(hidden = true)
             @RequestHeader("Authorization") String sessionToken,
 
             @Parameter(description = "id заказа")
             @PathVariable(value = "orderId") String orderId) {
-        return new ResponseEntity<>(userService.getOrderById(sessionToken, orderId), HttpStatus.OK);
+        return userService.getOrderById(sessionToken, orderId);
     }
 
     @Operation(
@@ -65,10 +72,11 @@ public class UserController {
     )
     @GetMapping("/addresses")
     @SecurityRequirement(name = "api_key")
-    public ResponseEntity<?> getUserAddresses(
+    @ResponseStatus(HttpStatus.OK)
+    public List<AddressDto> getUserAddresses(
             @Parameter(hidden = true)
             @RequestHeader("Authorization") String sessionToken) {
-        return new ResponseEntity<>(userService.getUserAddresses(sessionToken), HttpStatus.OK);
+        return userService.getUserAddresses(sessionToken);
     }
 
     @Operation(
@@ -77,14 +85,15 @@ public class UserController {
     )
     @GetMapping("/addresses/{address_id}")
     @SecurityRequirement(name = "api_key")
-    public ResponseEntity<?> getUserAddress(
+    @ResponseStatus(HttpStatus.OK)
+    public AddressDto getUserAddress(
             @Parameter(hidden = true)
             @RequestHeader("Authorization") String sessionToken,
 
             @Parameter(description = "ID Адреса")
             @PathVariable("address_id") String addressId
     ) {
-        return new ResponseEntity<>(userService.getUserAddress(sessionToken, addressId), HttpStatus.OK);
+        return userService.getUserAddress(sessionToken, addressId);
     }
 
     @Operation(
@@ -93,10 +102,11 @@ public class UserController {
     )
     @GetMapping("/payments")
     @SecurityRequirement(name = "api_key")
-    public ResponseEntity<?> getUserPayments(
+    @ResponseStatus(HttpStatus.OK)
+    public List<PaymentDto> getUserPayments(
             @Parameter(hidden = true)
             @RequestHeader("Authorization") String sessionToken) {
-        return new ResponseEntity<>(userService.getUserPayments(sessionToken), HttpStatus.OK);
+        return userService.getUserPayments(sessionToken);
     }
 
     @Operation(
@@ -105,14 +115,15 @@ public class UserController {
     )
     @GetMapping("/payments/{payment_id}")
     @SecurityRequirement(name = "api_key")
-    public ResponseEntity<?> getUserPayment(
+    @ResponseStatus(HttpStatus.OK)
+    public PaymentDto getUserPayment(
             @Parameter(hidden = true)
             @RequestHeader("Authorization") String sessionToken,
 
             @Parameter(description = "ID способа оплаты")
             @PathVariable("payment_id") String paymentId
     ) {
-        return new ResponseEntity<>(userService.getUserPayment(sessionToken, paymentId), HttpStatus.OK);
+        return userService.getUserPayment(sessionToken, paymentId);
     }
 
     @Operation(
@@ -121,13 +132,13 @@ public class UserController {
     )
     @PostMapping("/new-address")
     @SecurityRequirement(name = "api_key")
-    public ResponseEntity<?> createNewAddress(
+    @ResponseStatus(HttpStatus.OK)
+    public void createNewAddress(
             @Parameter(hidden = true)
             @RequestHeader("Authorization") String sessionToken,
 
             @RequestBody AddressDto addressDto) {
         userService.createNewAddress(sessionToken, addressDto);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Operation(
@@ -136,12 +147,12 @@ public class UserController {
     )
     @PostMapping("/new-payment")
     @SecurityRequirement(name = "api_key")
-    public ResponseEntity<?> createNewAddress(
+    @ResponseStatus(HttpStatus.OK)
+    public void createNewAddress(
             @Parameter(hidden = true)
             @RequestHeader("Authorization") String sessionToken,
 
             @RequestBody PaymentDto paymentDto) {
         userService.createNewPayment(sessionToken, paymentDto);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

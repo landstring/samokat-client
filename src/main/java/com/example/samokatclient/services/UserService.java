@@ -3,6 +3,7 @@ package com.example.samokatclient.services;
 import com.example.samokatclient.DTO.order.AddressDto;
 import com.example.samokatclient.DTO.order.OrderDto;
 import com.example.samokatclient.DTO.order.PaymentDto;
+import com.example.samokatclient.DTO.session.UserDto;
 import com.example.samokatclient.entities.session.Session;
 import com.example.samokatclient.entities.user.Address;
 import com.example.samokatclient.entities.user.Order;
@@ -16,6 +17,7 @@ import com.example.samokatclient.exceptions.session.UserIsNotAuthorizedException
 import com.example.samokatclient.mappers.AddressMapper;
 import com.example.samokatclient.mappers.OrderMapper;
 import com.example.samokatclient.mappers.PaymentMapper;
+import com.example.samokatclient.mappers.UserMapper;
 import com.example.samokatclient.repositories.session.SessionRepository;
 import com.example.samokatclient.repositories.user.AddressRepository;
 import com.example.samokatclient.repositories.user.OrderRepository;
@@ -37,63 +39,64 @@ public class UserService {
     private final OrderMapper orderMapper;
     private final PaymentMapper paymentMapper;
     private final AddressMapper addressMapper;
+    private final UserMapper userMapper;
 
-    public User getSessionUser(String sessionToken) {
+    public UserDto getSessionUser(String sessionToken) {
         Session session = sessionRepository.findById(sessionToken).orElseThrow(
                 () -> new InvalidTokenException("Неверный ключ сессии")
         );
         if (session.getUser() == null) {
             throw new UserIsNotAuthorizedException("Пользователь не авторизован");
         }
-        return session.getUser();
+        return userMapper.toDto(session.getUser());
     }
 
     public List<OrderDto> getUserOrders(String sessionToken) {
-        User user = getSessionUser(sessionToken);
+        UserDto userDto = getSessionUser(sessionToken);
         return orderRepository
-                .findByUserId(user.getId())
+                .findByUserId(userDto.getId())
                 .stream()
                 .map(orderMapper::toDto)
                 .toList();
     }
 
     public OrderDto getOrderById(String sessionToken, String orderId) {
-        User user = getSessionUser(sessionToken);
-        Order order = orderRepository.findByIdAndUserId(orderId, user.getId()).orElseThrow(
+        UserDto userDto = getSessionUser(sessionToken);
+        Order order = orderRepository.findByIdAndUserId(orderId, userDto.getId()).orElseThrow(
                 () -> new OrderNotFoundException("Такого заказа не существует, или он создан другим пользователем")
         );
         return orderMapper.toDto(order);
     }
 
     public List<AddressDto> getUserAddresses(String sessionToken) {
-        User user = getSessionUser(sessionToken);
+        UserDto userDto = getSessionUser(sessionToken);
         return addressRepository
-                .findByUserId(user.getId())
+                .findByUserId(userDto.getId())
                 .stream()
                 .map(addressMapper::toDto)
                 .toList();
     }
 
     public AddressDto getUserAddress(String sessionToken, String addressId) {
-        User user = getSessionUser(sessionToken);
-        Address address = addressRepository.findByIdAndUserId(addressId, user.getId()).orElseThrow(
+        UserDto userDto = getSessionUser(sessionToken);
+        Address address = addressRepository.findByIdAndUserId(addressId, userDto.getId()).orElseThrow(
                 () -> new AddressNotFoundException("Такого адреса не существует, или он создан другим пользователем")
         );
         return addressMapper.toDto(address);
     }
 
     public List<PaymentDto> getUserPayments(String sessionToken) {
-        User user = getSessionUser(sessionToken);
+        UserDto userDto = getSessionUser(sessionToken);
         return paymentRepository
-                .findByUserId(user.getId())
+                .findByUserId(userDto.getId())
                 .stream()
                 .map(paymentMapper::toDto)
                 .toList();
     }
 
     public PaymentDto getUserPayment(String sessionToken, String paymentId) {
-        User user = getSessionUser(sessionToken);
-        Payment payment = paymentRepository.findByIdAndUserId(paymentId, user.getId()).orElseThrow(
+        UserDto userDto = getSessionUser(sessionToken);
+        Payment payment = paymentRepository.findByIdAndUserId(paymentId, userDto.getId()).orElseThrow(
                 () -> new PaymentNotFoundException("Такого способа оплаты не существует, или он создан другим пользователем")
         );
         return paymentMapper.toDto(payment);
@@ -104,10 +107,10 @@ public class UserService {
         do {
             addressId = UUID.randomUUID().toString();
         } while (addressRepository.existsById(addressId));
-        User user = getSessionUser(sessionToken);
+        UserDto userDto = getSessionUser(sessionToken);
         Address address = addressMapper.fromDto(addressDto);
         address.setId(addressId);
-        address.setUserId(user.getId());
+        address.setUserId(userDto.getId());
         addressRepository.save(address);
     }
 
@@ -116,10 +119,10 @@ public class UserService {
         do {
             paymentId = UUID.randomUUID().toString();
         } while (paymentRepository.existsById(paymentId));
-        User user = getSessionUser(sessionToken);
+        UserDto userDto = getSessionUser(sessionToken);
         Payment payment = paymentMapper.fromDto(paymentDto);
         payment.setId(paymentId);
-        payment.setUserId(user.getId());
+        payment.setUserId(userDto.getId());
         paymentRepository.save(payment);
     }
 }

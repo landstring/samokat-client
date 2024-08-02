@@ -1,5 +1,6 @@
 package com.example.samokatclient.controllers;
 
+import com.example.samokatclient.DTO.currentOrder.CurrentOrderClientDto;
 import com.example.samokatclient.services.CurrentOrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -7,8 +8,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Tag(name = "Методы для работы с текущим заказом")
 @CrossOrigin
@@ -24,10 +26,11 @@ public class CurrentOrderController {
     )
     @GetMapping("/send")
     @SecurityRequirement(name = "api_key")
-    public ResponseEntity<?> createOrder(
+    @ResponseStatus(HttpStatus.OK)
+    public String createOrder(
             @Parameter(hidden = true)
             @RequestHeader("Authorization") String sessionToken) {
-        return new ResponseEntity<>(currentOrderService.createOrder(sessionToken), HttpStatus.OK);
+        return currentOrderService.createOrder(sessionToken);
     }
 
     @Operation(
@@ -36,14 +39,14 @@ public class CurrentOrderController {
     )
     @GetMapping("/cancel/{orderId}")
     @SecurityRequirement(name = "api_key")
-    public ResponseEntity<?> cancelOrder(
+    @ResponseStatus(HttpStatus.OK)
+    public void cancelOrder(
             @Parameter(description = "Номер заказа")
             @PathVariable("orderId") String orderId,
 
             @Parameter(hidden = true)
             @RequestHeader("Authorization") String sessionToken) {
         currentOrderService.cancelOrder(sessionToken, orderId);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Operation(
@@ -52,9 +55,10 @@ public class CurrentOrderController {
     )
     @GetMapping("/")
     @SecurityRequirement(name = "api_key")
-    public ResponseEntity<?> getCurrentOrders(
+    @ResponseStatus(HttpStatus.OK)
+    public List<CurrentOrderClientDto> getCurrentOrders(
             @Parameter(hidden = true)
             @RequestHeader("Authorization") String sessionToken) {
-        return new ResponseEntity<>(currentOrderService.getCurrentOrders(sessionToken), HttpStatus.OK);
+        return currentOrderService.getCurrentOrders(sessionToken);
     }
 }

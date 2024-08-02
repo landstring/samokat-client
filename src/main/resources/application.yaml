@@ -1,4 +1,6 @@
 spring:
+  aop:
+    auto: true
   datasource:
     url: jdbc:postgresql://localhost:5433/samokat_db
     username: postgres

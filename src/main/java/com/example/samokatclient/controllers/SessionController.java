@@ -1,5 +1,7 @@
 package com.example.samokatclient.controllers;
 
+import com.example.samokatclient.DTO.order.AddressDto;
+import com.example.samokatclient.DTO.order.PaymentDto;
 import com.example.samokatclient.DTO.session.UserDto;
 import com.example.samokatclient.services.SessionService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -7,6 +9,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/v1/session")
+@Slf4j
 public class SessionController {
     private final SessionService sessionService;
 
@@ -24,8 +28,10 @@ public class SessionController {
             description = "Данный метод создаст сессию и выдаст токен"
     )
     @GetMapping("/create")
-    public ResponseEntity<?> createSession() {
-        return new ResponseEntity<>(sessionService.createSession(), HttpStatus.OK);
+    @ResponseStatus(HttpStatus.OK)
+    public String createSession() {
+        log.info("Создание сессии");
+        return sessionService.createSession();
     }
 
     @Operation(
@@ -36,13 +42,13 @@ public class SessionController {
     )
     @PostMapping("/authorization")
     @SecurityRequirement(name = "api_key")
-    public ResponseEntity<?> authorization(
+    @ResponseStatus(HttpStatus.OK)
+    public void authorization(
             @Parameter(hidden = true)
             @RequestHeader("Authorization") String sessionToken,
 
             @RequestBody UserDto userDto) {
         sessionService.authorizeUser(sessionToken, userDto);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Operation(
@@ -52,10 +58,11 @@ public class SessionController {
     )
     @GetMapping("/address")
     @SecurityRequirement(name = "api_key")
-    public ResponseEntity<?> getAddress(
+    @ResponseStatus(HttpStatus.OK)
+    public AddressDto getAddress(
             @Parameter(hidden = true)
             @RequestHeader("Authorization") String sessionToken) {
-        return new ResponseEntity<>(sessionService.getAddress(sessionToken), HttpStatus.OK);
+        return sessionService.getAddress(sessionToken);
     }
 
     @Operation(
@@ -65,10 +72,11 @@ public class SessionController {
     )
     @GetMapping("/payment")
     @SecurityRequirement(name = "api_key")
-    public ResponseEntity<?> getPayment(
+    @ResponseStatus(HttpStatus.OK)
+    public PaymentDto getPayment(
             @Parameter(hidden = true)
             @RequestHeader("Authorization") String sessionToken) {
-        return new ResponseEntity<>(sessionService.getPayment(sessionToken), HttpStatus.OK);
+        return sessionService.getPayment(sessionToken);
     }
 
     @Operation(
@@ -79,14 +87,14 @@ public class SessionController {
     )
     @GetMapping("/address/{addressId}")
     @SecurityRequirement(name = "api_key")
-    public ResponseEntity<?> setAddress(
+    @ResponseStatus(HttpStatus.OK)
+    public void setAddress(
             @Parameter(hidden = true)
             @RequestHeader("Authorization") String sessionToken,
 
             @Parameter(description = "ID адреса")
             @PathVariable("addressId") String addressId) {
         sessionService.setAddress(sessionToken, addressId);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Operation(
@@ -97,13 +105,13 @@ public class SessionController {
     )
     @GetMapping("/payment/{paymentId}")
     @SecurityRequirement(name = "api_key")
-    public ResponseEntity<?> setPayment(
+    @ResponseStatus(HttpStatus.OK)
+    public void setPayment(
             @Parameter(hidden = true)
             @RequestHeader("Authorization") String sessionToken,
 
             @Parameter(description = "ID способа оплаты")
             @PathVariable("paymentId") String paymentId) {
         sessionService.setPayment(sessionToken, paymentId);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

@@ -1,13 +1,16 @@
 package com.example.samokatclient.controllers;
 
+import com.example.samokatclient.DTO.product.CategoryDto;
+import com.example.samokatclient.DTO.product.ProductDto;
 import com.example.samokatclient.services.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Tag(name = "Методы для получения информации о продуктах")
 @CrossOrigin
@@ -22,8 +25,9 @@ public class ProductController {
             description = "Категории выводятся иерархической структурой"
     )
     @GetMapping("/categories")
-    private ResponseEntity<?> getCategories() {
-        return new ResponseEntity<>(productService.getAllCategories(), HttpStatus.OK);
+    @ResponseStatus(HttpStatus.OK)
+    private List<CategoryDto> getCategories() {
+        return productService.getAllCategories();
     }
 
     @Operation(
@@ -33,7 +37,8 @@ public class ProductController {
                             " возьмёт продукты из каждой, объединив их в список"
     )
     @GetMapping("/categories/{categoryId}")
-    private ResponseEntity<?> getCategories(
+    @ResponseStatus(HttpStatus.OK)
+    private List<ProductDto> getCategories(
             @Parameter(description = "ID категории")
             @PathVariable("categoryId") Long categoryId,
 
@@ -42,10 +47,7 @@ public class ProductController {
 
             @Parameter(description = "Размер страницы")
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
-        return new ResponseEntity<>(
-                productService.getAllProductsFromCategory(categoryId, pageNumber, pageSize),
-                HttpStatus.OK
-        );
+        return productService.getAllProductsFromCategory(categoryId, pageNumber, pageSize);
     }
 
     @Operation(
@@ -54,13 +56,14 @@ public class ProductController {
                     "Выводит все продукты, которые представлены в каталоге"
     )
     @GetMapping("/products")
-    private ResponseEntity<?> getProducts(
+    @ResponseStatus(HttpStatus.OK)
+    private List<ProductDto> getProducts(
             @Parameter(description = "Номер страницы")
             @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
 
             @Parameter(description = "Размер страницы")
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
-        return new ResponseEntity<>(productService.getAllProductsPage(pageNumber, pageSize), HttpStatus.OK);
+        return productService.getAllProductsPage(pageNumber, pageSize);
     }
 
     @Operation(
@@ -68,11 +71,11 @@ public class ProductController {
             description = "Выводит информацию о конкретном продукте"
     )
     @GetMapping("/products/{productId}")
-    private ResponseEntity<?> getProduct(
+    @ResponseStatus(HttpStatus.OK)
+    private ProductDto getProduct(
             @Parameter(description = "ID продукта")
             @PathVariable("productId") Long productId) {
-
-        return new ResponseEntity<>(productService.getProduct(productId), HttpStatus.OK);
+        return productService.getProduct(productId);
     }
 
     @Operation(
@@ -80,7 +83,8 @@ public class ProductController {
             description = "Ищет продукты по ключевым словам запроса"
     )
     @GetMapping("/products/find")
-    private ResponseEntity<?> getProducts(
+    @ResponseStatus(HttpStatus.OK)
+    private List<ProductDto> getProducts(
             @Parameter(description = "Поисковой запрос")
             @RequestParam("search") String search,
 
@@ -89,7 +93,7 @@ public class ProductController {
 
             @Parameter(description = "Размер страницы")
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
-        return new ResponseEntity<>(productService.searchProductsByKeywords(search, pageNumber, pageSize), HttpStatus.OK);
+        return productService.searchProductsByKeywords(search, pageNumber, pageSize);
     }
 
 
