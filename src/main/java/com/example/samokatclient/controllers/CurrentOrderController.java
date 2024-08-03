@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +18,7 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/v1/current-orders")
+@Slf4j
 public class CurrentOrderController {
     private final CurrentOrderService currentOrderService;
 
@@ -30,7 +32,25 @@ public class CurrentOrderController {
     public String createOrder(
             @Parameter(hidden = true)
             @RequestHeader("Authorization") String sessionToken) {
-        return currentOrderService.createOrder(sessionToken);
+        log.info("Запрос на создание заказа для сессии: {}", sessionToken);
+        return currentOrderService.createCurrentOrder(sessionToken);
+    }
+
+    @Operation(
+            summary = "Получить текущий заказ",
+            description = "Данный метод выдаст данные о текущем заказе по id"
+    )
+    @GetMapping("/{orderId}")
+    @SecurityRequirement(name = "api_key")
+    @ResponseStatus(HttpStatus.OK)
+    public void getCurrentOrder(
+            @Parameter(description = "Номер заказа")
+            @PathVariable("orderId") String orderId,
+
+            @Parameter(hidden = true)
+            @RequestHeader("Authorization") String sessionToken) {
+        log.info("Запрос на информацию о текущем заказе для сессии: {} по id: {}", sessionToken, orderId);
+        currentOrderService.getCurrentOrderById(sessionToken, orderId);
     }
 
     @Operation(
@@ -40,13 +60,14 @@ public class CurrentOrderController {
     @GetMapping("/cancel/{orderId}")
     @SecurityRequirement(name = "api_key")
     @ResponseStatus(HttpStatus.OK)
-    public void cancelOrder(
+    public void cancelCurrentOrder(
             @Parameter(description = "Номер заказа")
             @PathVariable("orderId") String orderId,
 
             @Parameter(hidden = true)
             @RequestHeader("Authorization") String sessionToken) {
-        currentOrderService.cancelOrder(sessionToken, orderId);
+        log.info("Запрос на отмену текущего заказа для сессии: {} по id: {}", sessionToken, orderId);
+        currentOrderService.cancelCurrentOrder(sessionToken, orderId);
     }
 
     @Operation(
@@ -59,6 +80,7 @@ public class CurrentOrderController {
     public List<CurrentOrderClientDto> getCurrentOrders(
             @Parameter(hidden = true)
             @RequestHeader("Authorization") String sessionToken) {
+        log.info("Запрос на вывод информации о текущих заказа для сессии: {}", sessionToken);
         return currentOrderService.getCurrentOrders(sessionToken);
     }
 }

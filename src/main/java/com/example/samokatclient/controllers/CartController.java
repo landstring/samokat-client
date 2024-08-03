@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/v1/cart")
+@Slf4j
 public class CartController {
     private final CartService cartService;
 
@@ -27,8 +29,9 @@ public class CartController {
     @ResponseStatus(HttpStatus.OK)
     private CartDto getCart(
             @Parameter(hidden = true)
-            @RequestHeader("Authorization") String token) {
-        return cartService.getCart(token);
+            @RequestHeader("Authorization") String sessionToken) {
+        log.info("Запрос на получение состояние корзины для сессии: {}" , sessionToken);
+        return cartService.getCart(sessionToken);
     }
 
     @Operation(
@@ -44,6 +47,7 @@ public class CartController {
 
             @Parameter(description = "ID продукта")
             @PathVariable("productId") Long productId) {
+        log.info("Запрос на добавление продукта в корзину id: {}, и ключом сессии: {}", productId, sessionToken);
         cartService.addToCart(sessionToken, productId);
     }
 
@@ -60,6 +64,7 @@ public class CartController {
 
             @Parameter(description = "ID продукта")
             @PathVariable("productId") Long productId) {
+        log.info("Запрос на удаление продукта из корзины с id: {}, и ключом сессии: {}", productId, sessionToken);
         cartService.deleteFromCart(sessionToken, productId);
     }
 
@@ -73,6 +78,7 @@ public class CartController {
     private void deleteFromCart(
             @Parameter(hidden = true)
             @RequestHeader("Authorization") String sessionToken) {
+        log.info("Запрос на удаление продукта из корзины для сессии: {}", sessionToken);
         cartService.clearCart(sessionToken);
     }
 }

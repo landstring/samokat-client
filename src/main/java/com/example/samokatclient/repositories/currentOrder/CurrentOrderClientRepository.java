@@ -41,31 +41,29 @@ public class CurrentOrderClientRepository {
 
     @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 2))
     private Optional<CurrentOrderClient> getCurrentOrderClient(String key) {
-        log.info("Redis hasKey HASH_KEY: " + HASH_KEY + ", key: " + key);
+        log.info("Redis выполняет операцию get - HASH_KEY: {}, key: {}", HASH_KEY, key);
         return Optional.ofNullable(redisTemplate.opsForHash().get(HASH_KEY, key))
                 .map(object -> (CurrentOrderClient) object);
     }
 
     @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 2))
     private List<CurrentOrderClient> getCurrentOrderClientList(List<String> hashKeys){
-        log.info("Redis get by keys[] HASH_KEY: " + HASH_KEY + ", keys: " + hashKeys);
+        log.info("Redis выполняет операцию get - HASH_KEY: {}, keys: {}", HASH_KEY, hashKeys);
         return hashKeys.stream()
                 .map(hashKey -> redisTemplate.opsForHash().get(HASH_KEY, hashKey))
                 .map(object -> (CurrentOrderClient) object)
                 .toList();
     }
 
-    @SneakyThrows
     @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 2))
     private void putCurrentOrderClient(CurrentOrderClient currentOrderClient) {
-        String value = new ObjectMapper().writeValueAsString(currentOrderClient);
-        log.info("Redis put HASH_KEY: " + HASH_KEY + ", key: " + currentOrderClient.getId() + ", value " + value);
+        log.info("Redis выполняет операцию put - HASH_KEY: {}, key: {}", HASH_KEY, currentOrderClient.getId());
         redisTemplate.opsForHash().put(HASH_KEY, currentOrderClient.getId(), currentOrderClient);
     }
 
     @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 2))
     private void deleteCurrentOrderClient(String key) {
-        log.info("Redis delete HASH_KEY: " + HASH_KEY + ", key: " + key);
+        log.info("Redis выполняет операцию delete - HASH_KEY: {}, key: {}", HASH_KEY, key);
         redisTemplate.opsForHash().delete(HASH_KEY, key);
     }
 }

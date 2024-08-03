@@ -34,22 +34,20 @@ public class SessionRepository {
 
     @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 2))
     private Optional<Session> getSession(String key) {
-        log.info("Redis get HASH_KEY: " + HASH_KEY + ", key: " + key);
+        log.info("Redis выполняет операцию get - HASH_KEY: {}, key: {}", HASH_KEY, key);
         return Optional.ofNullable(redisTemplate.opsForHash().get(HASH_KEY, key))
                 .map(object -> (Session) object);
     }
 
-    @SneakyThrows
     @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 2))
     private void putSession(Session session) {
-        String value = new ObjectMapper().writeValueAsString(session);
-        log.info("Redis get HASH_KEY: " + HASH_KEY + ", key: " + session.getId() + ", value " + value);
+        log.info("Redis выполняет операцию put - HASH_KEY: {}, key: {}", HASH_KEY, session.getId());
         redisTemplate.opsForHash().put(HASH_KEY, session.getId(), session);
     }
 
     @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 2))
     private boolean hasKey(String key) {
-        log.info("Redis hasKey HASH_KEY: " + HASH_KEY + ", key: " + key);
+        log.info("Redis выполняет операцию hasKey - HASH_KEY: {}, key: {}", HASH_KEY, key);
         return redisTemplate.opsForHash().hasKey(HASH_KEY, key);
     }
 

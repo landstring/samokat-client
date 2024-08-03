@@ -3,6 +3,7 @@ package com.example.samokatclient.mappers;
 import com.example.samokatclient.DTO.currentOrder.CurrentOrderClientDto;
 import com.example.samokatclient.entities.currentOrder.CurrentOrderClient;
 import lombok.AllArgsConstructor;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 
 @Component

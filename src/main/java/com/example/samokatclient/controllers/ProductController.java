@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +18,7 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/v1")
+@Slf4j
 public class ProductController {
     private final ProductService productService;
 
@@ -27,6 +29,7 @@ public class ProductController {
     @GetMapping("/categories")
     @ResponseStatus(HttpStatus.OK)
     private List<CategoryDto> getCategories() {
+        log.info("Запрос на вывод всего дерева категорий продуктов");
         return productService.getAllCategories();
     }
 
@@ -47,6 +50,8 @@ public class ProductController {
 
             @Parameter(description = "Размер страницы")
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
+        log.info("Запрос на вывод всех продуктов из категории с id: {}, страница: {}, размер страницы: {}",
+                categoryId, pageNumber, pageSize);
         return productService.getAllProductsFromCategory(categoryId, pageNumber, pageSize);
     }
 
@@ -63,6 +68,7 @@ public class ProductController {
 
             @Parameter(description = "Размер страницы")
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
+        log.info("Запрос на вывод всех продуктов, страница: {}, размер страницы: {}", pageNumber, pageSize);
         return productService.getAllProductsPage(pageNumber, pageSize);
     }
 
@@ -75,6 +81,7 @@ public class ProductController {
     private ProductDto getProduct(
             @Parameter(description = "ID продукта")
             @PathVariable("productId") Long productId) {
+        log.info("Запрос на вывод информации о продукте с id {}", productId);
         return productService.getProduct(productId);
     }
 
@@ -93,6 +100,7 @@ public class ProductController {
 
             @Parameter(description = "Размер страницы")
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
+        log.info("Поисковой запрос: {}, страница: {}, размер страницы: {}", search, pageNumber, pageSize);
         return productService.searchProductsByKeywords(search, pageNumber, pageSize);
     }
 

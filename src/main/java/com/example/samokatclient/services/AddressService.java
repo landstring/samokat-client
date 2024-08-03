@@ -1,19 +1,16 @@
 package com.example.samokatclient.services;
 
+import com.example.samokatclient.DTO.order.AddressDto;
 import com.example.samokatclient.entities.user.Address;
-import com.example.samokatclient.exceptions.order.AddressNotFoundException;
-import com.example.samokatclient.repositories.user.AddressRepository;
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Service;
 
-@Service
-@AllArgsConstructor
-public class AddressService {
-    private final AddressRepository addressRepository;
+import java.util.List;
 
-    public Address getAddressById(String addressId) {
-        return addressRepository.findById(addressId).orElseThrow(
-                () -> new AddressNotFoundException("Такого адреса не существует")
-        );
-    }
+public interface AddressService {
+    Address getAddressById(String addressId);
+
+    List<AddressDto> getUserAddresses(String sessionToken);
+
+    AddressDto getUserAddress(String sessionToken, String addressId);
+
+    void createNewAddress(String sessionToken, AddressDto addressDto);
 }

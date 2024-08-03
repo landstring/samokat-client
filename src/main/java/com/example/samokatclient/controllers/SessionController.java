@@ -48,6 +48,7 @@ public class SessionController {
             @RequestHeader("Authorization") String sessionToken,
 
             @RequestBody UserDto userDto) {
+        log.info("Авторизация внутри сессии: {}, \nДанные пользователя: {}", sessionToken, userDto);
         sessionService.authorizeUser(sessionToken, userDto);
     }
 
@@ -62,6 +63,7 @@ public class SessionController {
     public AddressDto getAddress(
             @Parameter(hidden = true)
             @RequestHeader("Authorization") String sessionToken) {
+        log.info("Получить адрес возможного заказа для сессии: {}", sessionToken);
         return sessionService.getAddress(sessionToken);
     }
 
@@ -76,6 +78,7 @@ public class SessionController {
     public PaymentDto getPayment(
             @Parameter(hidden = true)
             @RequestHeader("Authorization") String sessionToken) {
+        log.info("Получить способ оплаты возможного заказа для сессии: {}", sessionToken);
         return sessionService.getPayment(sessionToken);
     }
 
@@ -94,6 +97,8 @@ public class SessionController {
 
             @Parameter(description = "ID адреса")
             @PathVariable("addressId") String addressId) {
+        log.info("Запрос на присвоение текущему возможному заказу id адреса для сессии: {}, id адреса: {}",
+                sessionToken, addressId);
         sessionService.setAddress(sessionToken, addressId);
     }
 
@@ -112,6 +117,8 @@ public class SessionController {
 
             @Parameter(description = "ID способа оплаты")
             @PathVariable("paymentId") String paymentId) {
+        log.info("Запрос на присвоение текущему возможному заказу id способа оплаты для сессии: {}, id способа оплаты: {}",
+                sessionToken, paymentId);
         sessionService.setPayment(sessionToken, paymentId);
     }
 }
