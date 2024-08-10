@@ -93,11 +93,6 @@ public class KafkaConfiguration {
         return TopicBuilder.name("newStatus").build();
     }
 
-    @Bean
-    public NewTopic newDeliveryTopic() {
-        return TopicBuilder.name("deliveryOrder").build();
-    }
-
     private Map<String, Object> propertiesConsumerGenerate(Class<?> obj) {
         Map<String, Object> properties = new HashMap<>();
         properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
